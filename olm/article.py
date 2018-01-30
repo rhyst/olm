@@ -3,25 +3,32 @@ import datetime
 import codecs
 import re
 
-INDENTATION = re.compile(r'\n\s{2,}')
-META = re.compile(r'^(\w+):\s*(.+?)\n')
+INDENTATION = re.compile(r'^\s{4,}(.*)')
+META = re.compile(r'^(\w+):\s*(.*)')
 
 def md_parse_meta(text):
     """Parse the given text into metadata and strip it for a Markdown parser.
     :param text: text to be parsed
     """
-    rv = {}
-    m = META.match(text)
-
+    text = text.split('\n')
+    meta = {}
+    m = META.match(text[0])
     while m:
         key = m.group(1)
         value = m.group(2)
-        value = INDENTATION.sub('\n', value.strip())
-        rv[key] = value
-        text = text[len(m.group(0)):]
-        m = META.match(text)
+        meta[key] = value
+        text = text[1:]
+        if len(text) >= 1:
+            i = INDENTATION.match(text[0])
+            while i:
+                meta[key] = meta[key] + i.group(1)
+                text = text[1:]
+                i = INDENTATION.match(text[0])
+            m = META.match(text[0])
+        else:
+            m = False
 
-    return rv, text
+    return meta, '\n'.join(text)
 
 class Article:
     """Object representing an article"""
@@ -36,6 +43,8 @@ class Article:
         with codecs.open(filepath, 'r', encoding='utf8') as md_file:
             self.metadata, raw_content = md_parse_meta(md_file.read())
             self.content = context["MD"](raw_content)
+        for key in self.metadata:
+            print("{}: {}".format(key, self.metadata[key]))
 
     def write_file(self):
         """Write the article to a file"""
