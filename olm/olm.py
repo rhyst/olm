@@ -2,13 +2,15 @@ import sys
 import os
 import logging
 import mistune
-from jinja2 import Environment, FileSystemLoader, select_autoescape
 import datetime
-from article import Article
 import time
+import codecs
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 import sass
 from jsmin import jsmin
-import codecs
+from article import Article
+from index import Index
+from page import Page
 
 if len(sys.argv) < 2:
     print("Please identify the source folder")
@@ -22,38 +24,68 @@ MD = mistune.Markdown()
 JINJA_ENV = Environment(
     loader=FileSystemLoader([TEMPLATES_FOLDER])
 )
+ARTICLE_TYPES = ['trip', 'tour']
+INDEX_TYPES = ['index', 'stickyindex']
 CONTEXT = {
     "BASE_FOLDER": BASE_FOLDER,
     "SOURCE_FOLDER": SOURCE_FOLDER,
     "OUTPUT_FOLDER": OUTPUT_FOLDER,
     "MD": MD,
-    "JINJA_ENV": JINJA_ENV
+    "JINJA_ENV": JINJA_ENV,
+    "ARTICLE_TYPES": ARTICLE_TYPES,
+    "INDEX_TYPES": INDEX_TYPES
 }
 
 def main():
+    time_all = time.time()
     """Main olm function"""
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     logging.info("Beginning static site generation")
 
+    # Source markdown files
     articles = []
+    pages = []
+    subsites = set()
     logging.info("Scanning source files")
     time_source_start = time.time()
     for dirname, dirs, files in os.walk(SOURCE_FOLDER):
         for filename in files:
             filepath = os.path.join(dirname, filename)
+            relpath = os.path.relpath(filepath, CONTEXT["SOURCE_FOLDER"])
+            first_folder = relpath.split(os.sep)[0]
             basename, extension = os.path.splitext(filename)
             if extension.lower() == ".md":
-                logging.debug("Found %s", filepath)
-                articles.append(Article(CONTEXT, filepath))
-    logging.info("Processed %d articles in %f seconds", len(articles), time.time() - time_source_start)
+                if first_folder[0] == "_":
+                    subsites.add(first_folder)
+                elif first_folder == "pages":
+                    logging.debug("Found %s", filepath)
+                    pages.append(Page(CONTEXT, filepath))
+                else:
+                    logging.debug("Found %s", filepath)
+                    articles.append(Article(CONTEXT, filepath))
+    logging.info("Processed %d articles, %d pages in %f seconds", len(articles), len(pages), time.time() - time_source_start)
 
-    logging.info("Writing %d files", len(articles))
+    logging.info("Writing %d articles", len(articles))
     time_write_start = time.time()
     for index, article in enumerate(articles):
         logging.debug("Writing file %d of %d", index + 1, len(articles))
         article.write_file()
     logging.info("Wrote %d articles in %f seconds", len(articles), (time.time() - time_write_start))
 
+    logging.info("Writing %d pages", len(pages))
+    time_write_start = time.time()
+    for index, page in enumerate(pages):
+        logging.debug("Writing file %d of %d", index + 1, len(pages))
+        page.write_file()
+    logging.info("Wrote %d pages in %f seconds", len(pages), (time.time() - time_write_start))
+
+    # Index
+    logging.info("Writing articles index")
+    CONTEXT["ARTICLES"] = articles
+    index = Index(CONTEXT)
+    index.write_file()
+
+    # Static files
     logging.info("Compiling static files")
     time_static_start = time.time()
     sass.compile(dirname=(os.path.join(STATIC_FOLDER, 'css'), os.path.join(OUTPUT_FOLDER, 'theme', 'css')), output_style='compressed')
@@ -64,12 +96,13 @@ def main():
             rel_path = os.path.relpath(filepath, os.path.join(STATIC_FOLDER, 'js'))
             if extension.lower() == ".js":
                 with codecs.open(filepath, encoding='utf-8', errors='ignore') as js_file:
-                    minified = jsmin(js_file.read())
+                    minified = js_file.read() #jsmin(js_file.read())
                 output_filepath = os.path.join(OUTPUT_FOLDER, 'theme', 'js', rel_path)
                 os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
                 with codecs.open(output_filepath, 'w+', encoding='utf-8') as js_min_file:
                     js_min_file.write(minified)
     logging.info("Processed static files in %f seconds", time.time() - time_static_start)
-  
+
+    logging.info("Completed everything in %f seconds", (time.time() - time_all))
 if __name__== "__main__":
   main()
