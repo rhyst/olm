@@ -1,6 +1,6 @@
 import re
 
-INDENTATION = re.compile(r'^\s{4,}(.*)')
+INDENTATION = re.compile(r'^(\s{4,}|\t{2,})(.*)')
 META = re.compile(r'^(\w+):\s*(.*)')
 
 def md_parse_meta(text):
