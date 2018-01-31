@@ -37,13 +37,8 @@ CONTEXT = {
     "INDEX_TYPES": INDEX_TYPES
 }
 
-def main():
-    time_all = time.time()
-    """Main olm function"""
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-    logging.info("Beginning static site generation")
-
-    # Source markdown files
+def generateSite():
+     # Source markdown files
     articles = []
     draft_articles = []
     unlisted_articles = []
@@ -51,7 +46,7 @@ def main():
     subsites = set()
     logging.info("Scanning source files")
     time_source_start = time.time()
-    for dirname, dirs, files in os.walk(SOURCE_FOLDER):
+    for dirname, dirs, files in os.walk(CONTEXT["SOURCE_FOLDER"]):
         for filename in files:
             filepath = os.path.join(dirname, filename)
             relpath = os.path.relpath(filepath, CONTEXT["SOURCE_FOLDER"])
@@ -111,7 +106,22 @@ def main():
                 with codecs.open(output_filepath, 'w+', encoding='utf-8') as js_min_file:
                     js_min_file.write(minified)
     logging.info("Processed static files in %f seconds", time.time() - time_static_start)
+    return subsites
+
+def main():
+    time_all = time.time()
+    """Main olm function"""
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+    logging.info("Beginning static site generation")
+
+    subsites = generateSite()
+    for subsite in subsites:
+        CONTEXT["OUTPUT_FOLDER"] = os.path.abspath(os.path.join(BASE_FOLDER, 'dist', subsite[1:]))
+        CONTEXT["BASE_FOLDER"] = os.path.join(SOURCE_FOLDER, subsite)
+        CONTEXT["SOURCE_FOLDER"] = os.path.join(SOURCE_FOLDER, subsite)
+        generateSite()
 
     logging.info("Completed everything in %f seconds", (time.time() - time_all))
+
 if __name__== "__main__":
   main()
