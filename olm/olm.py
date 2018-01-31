@@ -11,6 +11,7 @@ from jsmin import jsmin
 from article import Article
 from index import Index
 from page import Page
+from constants import ArticleStatus
 
 if len(sys.argv) < 2:
     print("Please identify the source folder")
@@ -44,6 +45,8 @@ def main():
 
     # Source markdown files
     articles = []
+    draft_articles = []
+    unlisted_articles = []
     pages = []
     subsites = set()
     logging.info("Scanning source files")
@@ -52,18 +55,24 @@ def main():
         for filename in files:
             filepath = os.path.join(dirname, filename)
             relpath = os.path.relpath(filepath, CONTEXT["SOURCE_FOLDER"])
-            first_folder = relpath.split(os.sep)[0]
+            firstfolder = relpath.split(os.sep)[0]
             basename, extension = os.path.splitext(filename)
             if extension.lower() == ".md":
-                if first_folder[0] == "_":
-                    subsites.add(first_folder)
-                elif first_folder == "pages":
+                if firstfolder[0] == "_":
+                    subsites.add(firstfolder)
+                elif firstfolder == "pages":
                     logging.debug("Found %s", filepath)
                     pages.append(Page(CONTEXT, filepath))
                 else:
                     logging.debug("Found %s", filepath)
-                    articles.append(Article(CONTEXT, filepath))
-    logging.info("Processed %d articles, %d pages in %f seconds", len(articles), len(pages), time.time() - time_source_start)
+                    article = Article(CONTEXT, filepath)
+                    if article.status == ArticleStatus.ACTIVE:
+                        articles.append(article)
+                    elif article.status == ArticleStatus.UNLISTED:
+                        unlisted_articles.append(article)
+                    else:
+                        draft_articles.append(article)
+    logging.info("Processed %d articles, %d unlisted articles, %d drafts, and %d pages in %f seconds", len(articles), len(unlisted_articles), len(draft_articles), len(pages), time.time() - time_source_start)
 
     logging.info("Writing %d articles", len(articles))
     time_write_start = time.time()
