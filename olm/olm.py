@@ -8,10 +8,13 @@ import codecs
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import sass
 from jsmin import jsmin
+from blinker import signal
+import imp
+
 from article import Article
 from index import Index
 from page import Page
-from constants import ArticleStatus
+from constants import ArticleStatus, Signals
 
 if len(sys.argv) < 2:
     print("Please identify the source folder")
@@ -21,12 +24,15 @@ SOURCE_FOLDER = os.path.abspath(os.path.join(BASE_FOLDER, 'src'))
 OUTPUT_FOLDER = os.path.abspath(os.path.join(BASE_FOLDER, 'dist'))
 STATIC_FOLDER = os.path.abspath(os.path.join(BASE_FOLDER, 'theme', 'static'))
 TEMPLATES_FOLDER = os.path.abspath(os.path.join(BASE_FOLDER, 'theme', 'templates'))
+PLUGINS_FOLDER = os.path.abspath(os.path.join(BASE_FOLDER, 'plugins',))
 MD = mistune.Markdown()
 JINJA_ENV = Environment(
     loader=FileSystemLoader([TEMPLATES_FOLDER])
 )
 ARTICLE_TYPES = ['trip', 'tour']
 INDEX_TYPES = ['index', 'stickyindex']
+PLUGINS = ['inlinephotos']
+
 CONTEXT = {
     "BASE_FOLDER": BASE_FOLDER,
     "SOURCE_FOLDER": SOURCE_FOLDER,
@@ -34,8 +40,21 @@ CONTEXT = {
     "MD": MD,
     "JINJA_ENV": JINJA_ENV,
     "ARTICLE_TYPES": ARTICLE_TYPES,
-    "INDEX_TYPES": INDEX_TYPES
+    "INDEX_TYPES": INDEX_TYPES,
+    "PLUGINS": PLUGINS,
+    "PLUGINS_FOLDER": PLUGINS_FOLDER
 }
+
+def loadPlugins():
+    for plugin in CONTEXT['PLUGINS']:
+        try:
+            path = os.path.join(CONTEXT['PLUGINS_FOLDER'], plugin, plugin + '.py')
+            py_mod = imp.load_source(plugin, path)
+            func = getattr(py_mod, 'register')()
+            signal_sender = signal(func[0])
+            signal_sender.connect(func[1])
+        except:
+            logging.warn('Plugin %s failed to load.', plugin)
 
 def generateSite():
      # Source markdown files
@@ -114,8 +133,11 @@ def main():
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     logging.info("Beginning static site generation")
 
+    loadPlugins()
+
     subsites = generateSite()
     for subsite in subsites:
+        logging.info("Found subsite '%s'", subsite[1:])
         CONTEXT["OUTPUT_FOLDER"] = os.path.abspath(os.path.join(BASE_FOLDER, 'dist', subsite[1:]))
         CONTEXT["BASE_FOLDER"] = os.path.join(SOURCE_FOLDER, subsite)
         CONTEXT["SOURCE_FOLDER"] = os.path.join(SOURCE_FOLDER, subsite)

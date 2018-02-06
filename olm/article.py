@@ -2,9 +2,11 @@ import os
 import datetime
 import codecs
 import re
-from helper import md_parse_meta
 from urllib.parse import urljoin
-from constants import ArticleStatus
+from blinker import signal
+
+from helper import md_parse_meta
+from constants import ArticleStatus, Signals
 
 class Article:
     """Object representing an article"""
@@ -47,6 +49,9 @@ class Article:
 
         self.output_filepath = os.path.join(context["OUTPUT_FOLDER"], 'articles', output_filename)
         self.url             = 'articles/{}'.format(output_filename)
+
+        signal_sender = signal(Signals.AFTER_ARTICLE_READ)
+        signal_sender.send(self)
 
     def write_file(self):
         """Write the article to a file"""
