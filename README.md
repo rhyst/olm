@@ -17,13 +17,13 @@ VERY WIP.
 Plugins can subscribe to signals to modify data during the build process. The plugin should be in the plugins folder with a directory and python file with the same name: 
 
 ```
-MySite
-- src
-- dist
-- theme
-- plugins
-- - mycoolplugin
-- - - mycoolplugin.py
+.
+├── src
+├── dist
+├── theme
+└── plugins
+    └── mycoolplugin
+        └── mycoolplugin.py
 ```
 
 Within the plugin file should be the function with your code and a `register` function which should return a list of tuples with the signal you want to subscribe to and the function that should run.
