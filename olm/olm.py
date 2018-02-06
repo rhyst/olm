@@ -50,9 +50,13 @@ def loadPlugins():
         try:
             path = os.path.join(CONTEXT['PLUGINS_FOLDER'], plugin, plugin + '.py')
             py_mod = imp.load_source(plugin, path)
-            func = getattr(py_mod, 'register')()
-            signal_sender = signal(func[0])
-            signal_sender.connect(func[1])
+            registrations = getattr(py_mod, 'register')()
+            if type(registrations) is tuple:
+                registrations = [ registrations ]
+            for registration in registrations:
+                # TODO: Check if valid signal
+                signal_sender = signal(registration[0])
+                signal_sender.connect(registration[1])
         except:
             logging.warn('Plugin %s failed to load.', plugin)
 
