@@ -4,6 +4,14 @@ An olm is a cave dwelling amphibian that I imagine is fairly static. This is a f
 
 VERY WIP.
 
+## Install
+
+## Run
+
+## Content
+
+## Themes
+
 ## Plugins
 
 Plugins can subscribe to signals to modify data during the build process.
@@ -12,4 +20,8 @@ Plugins can subscribe to signals to modify data during the build process.
 
 Signal Name | String Value | Description
 ---|---|---
-AFTER_ARTICLE_READ |"AFTER_ARTICLE_READ" | After each article has been read and been parsed by Mistune for content and metadata. Passes the article as the single argument.
+AFTER_ARTICLE_READ |`AFTER_ARTICLE_READ` | After each article has been read and been parsed by Mistune for content and metadata. Passes the article as the single argument.
+
+## Acknowledgement
+
+Heavily inspired by the [Pelican](https://blog.getpelican.com/) static site generator.
