@@ -5,7 +5,7 @@
     - [x] JS minification?
     - [ ] Customisable paths
     - [ ] Allow ES6/Typescrip?
-* [ ] Implement callbacks for plugin style things to run
+* [x] Implement callbacks for plugin style things to run
 * [ ] Add other default content types
     - [x] Pages
     - [x] Index
@@ -20,4 +20,6 @@
     - [ ] Configurable things
         * [ ] Base url
         * [ ] Source and build folders
-        
+* [ ] More plugin callbacks
+* [ ] Plugins should be added to path so they can use relative import
+* [ ] Shared class for page, article, index to inherit
