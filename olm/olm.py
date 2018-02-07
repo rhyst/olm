@@ -33,8 +33,11 @@ JINJA_ENV = Environment(
 )
 ARTICLE_TYPES = ['trip', 'tour']
 INDEX_TYPES = ['index', 'stickyindex']
-PLUGINS = ['inlinephotos', 'acyear', 'cavepeeps']
-BASE_URL = "/"
+PLUGINS = ['inlinephotos', 'acyear', 'cavepeeps', 'photoarchive', 'metainserter']
+PHOTO_LOCATION = 'https://union.ic.ac.uk/rcc/caving/photo_archive/'
+ASSET_LOCATION = 'https://union.ic.ac.uk/rcc/caving/assets/'
+SITEURL = "/"
+PHOTOREEL = True
 
 CONTEXT = Map({
     "BASE_FOLDER": BASE_FOLDER,
@@ -46,7 +49,10 @@ CONTEXT = Map({
     "INDEX_TYPES": INDEX_TYPES,
     "PLUGINS": PLUGINS,
     "PLUGINS_FOLDER": PLUGINS_FOLDER,
-    "BASE_URL": "/",
+    "SITEURL": "",
+    "ASSET_LOCATION": ASSET_LOCATION,
+    "PHOTO_LOCATION": PHOTO_LOCATION,
+    "PHOTOREEL": PHOTOREEL,
     "BADGES": {
         'lightning': {
             'src': 'lightning.png',
@@ -96,7 +102,7 @@ def generateSite():
                 else:
                     logging.debug("Found %s", filepath)
                     article = Article(CONTEXT, filepath)
-                    if article.type in CONTEXT.ARTICLE_TYPES:
+                    if article.type in CONTEXT.ARTICLE_TYPES + CONTEXT.INDEX_TYPES:
                         if article.status == ArticleStatus.ACTIVE:
                             articles.append(article)
                         elif article.status == ArticleStatus.UNLISTED:
@@ -104,7 +110,7 @@ def generateSite():
                         else:
                             draft_articles.append(article)
     logging.info("Processed %d articles, %d unlisted articles, %d drafts, and %d pages in %f seconds", len(articles), len(unlisted_articles), len(draft_articles), len(pages), time.time() - time_source_start)
-    
+
     signal_sender = signal(Signals.AFTER_ALL_ARTICLES_READ)
     signal_sender.send((CONTEXT, articles))
 
