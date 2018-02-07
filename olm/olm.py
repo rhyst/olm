@@ -16,6 +16,7 @@ from index import Index
 from page import Page
 from constants import ArticleStatus, Signals
 from helper import Map
+from writer import Writer
 
 if len(sys.argv) < 2:
     print("Please identify the source folder")
@@ -32,7 +33,8 @@ JINJA_ENV = Environment(
 )
 ARTICLE_TYPES = ['trip', 'tour']
 INDEX_TYPES = ['index', 'stickyindex']
-PLUGINS = ['inlinephotos', 'acyear']
+PLUGINS = ['inlinephotos', 'acyear', 'cavepeeps']
+BASE_URL = "/"
 
 CONTEXT = Map({
     "BASE_FOLDER": BASE_FOLDER,
@@ -43,7 +45,15 @@ CONTEXT = Map({
     "ARTICLE_TYPES": ARTICLE_TYPES,
     "INDEX_TYPES": INDEX_TYPES,
     "PLUGINS": PLUGINS,
-    "PLUGINS_FOLDER": PLUGINS_FOLDER
+    "PLUGINS_FOLDER": PLUGINS_FOLDER,
+    "BASE_URL": "/",
+    "BADGES": {
+        'lightning': {
+            'src': 'lightning.png',
+            'alt': 'In the bivi'
+        }
+    },
+    "authors": set()
 })
 
 def loadPlugins():
@@ -58,8 +68,9 @@ def loadPlugins():
                 # TODO: Check if valid signal
                 signal_sender = signal(registration[0])
                 signal_sender.connect(registration[1])
-        except:
+        except Exception as e:
             logging.warn('Plugin %s failed to load.', plugin)
+            logging.warn(e)
 
 def generateSite():
      # Source markdown files
@@ -93,8 +104,12 @@ def generateSite():
                         else:
                             draft_articles.append(article)
     logging.info("Processed %d articles, %d unlisted articles, %d drafts, and %d pages in %f seconds", len(articles), len(unlisted_articles), len(draft_articles), len(pages), time.time() - time_source_start)
+    
     signal_sender = signal(Signals.AFTER_ALL_ARTICLES_READ)
     signal_sender.send((CONTEXT, articles))
+
+    signal_sender = signal(Signals.BEFORE_WRITING)
+    signal_sender.send((CONTEXT, Writer))
 
     logging.info("Writing %d articles", len(articles))
     time_write_start = time.time()
@@ -142,6 +157,9 @@ def main():
     logging.info("Beginning static site generation")
 
     loadPlugins()
+
+    signal_sender = signal(Signals.INITIALISED)
+    signal_sender.send((CONTEXT))
 
     subsites = generateSite()
     for subsite in subsites:

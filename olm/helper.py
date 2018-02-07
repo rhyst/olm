@@ -18,13 +18,13 @@ def md_parse_meta(text):
         if len(text) >= 1:
             i = INDENTATION.match(text[0])
             while i:
-                meta[key] = meta[key] + i.group(1)
+                meta[key] = meta[key] + '\n' + i.group(2)
                 text = text[1:]
                 i = INDENTATION.match(text[0])
             m = META.match(text[0])
         else:
             m = False
-
+        print(key + ':  ' + meta[key])
     return meta, '\n'.join(text)
 
 class Map(dict):
