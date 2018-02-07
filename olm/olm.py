@@ -85,12 +85,13 @@ def generateSite():
                 else:
                     logging.debug("Found %s", filepath)
                     article = Article(CONTEXT, filepath)
-                    if article.status == ArticleStatus.ACTIVE:
-                        articles.append(article)
-                    elif article.status == ArticleStatus.UNLISTED:
-                        unlisted_articles.append(article)
-                    else:
-                        draft_articles.append(article)
+                    if article.type in CONTEXT.ARTICLE_TYPES:
+                        if article.status == ArticleStatus.ACTIVE:
+                            articles.append(article)
+                        elif article.status == ArticleStatus.UNLISTED:
+                            unlisted_articles.append(article)
+                        else:
+                            draft_articles.append(article)
     logging.info("Processed %d articles, %d unlisted articles, %d drafts, and %d pages in %f seconds", len(articles), len(unlisted_articles), len(draft_articles), len(pages), time.time() - time_source_start)
 
     logging.info("Writing %d articles", len(articles))
