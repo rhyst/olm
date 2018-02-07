@@ -15,6 +15,7 @@ from article import Article
 from index import Index
 from page import Page
 from constants import ArticleStatus, Signals
+from helper import Map
 
 if len(sys.argv) < 2:
     print("Please identify the source folder")
@@ -33,7 +34,7 @@ ARTICLE_TYPES = ['trip', 'tour']
 INDEX_TYPES = ['index', 'stickyindex']
 PLUGINS = ['inlinephotos']
 
-CONTEXT = {
+CONTEXT = Map({
     "BASE_FOLDER": BASE_FOLDER,
     "SOURCE_FOLDER": SOURCE_FOLDER,
     "OUTPUT_FOLDER": OUTPUT_FOLDER,
@@ -43,12 +44,12 @@ CONTEXT = {
     "INDEX_TYPES": INDEX_TYPES,
     "PLUGINS": PLUGINS,
     "PLUGINS_FOLDER": PLUGINS_FOLDER
-}
+})
 
 def loadPlugins():
     for plugin in CONTEXT['PLUGINS']:
         try:
-            path = os.path.join(CONTEXT['PLUGINS_FOLDER'], plugin, plugin + '.py')
+            path = os.path.join(CONTEXT.PLUGINS_FOLDER, plugin, plugin + '.py')
             py_mod = imp.load_source(plugin, path)
             registrations = getattr(py_mod, 'register')()
             if type(registrations) is tuple:
@@ -69,10 +70,10 @@ def generateSite():
     subsites = set()
     logging.info("Scanning source files")
     time_source_start = time.time()
-    for dirname, dirs, files in os.walk(CONTEXT["SOURCE_FOLDER"]):
+    for dirname, dirs, files in os.walk(CONTEXT.SOURCE_FOLDER):
         for filename in files:
             filepath = os.path.join(dirname, filename)
-            relpath = os.path.relpath(filepath, CONTEXT["SOURCE_FOLDER"])
+            relpath = os.path.relpath(filepath, CONTEXT.SOURCE_FOLDER)
             firstfolder = relpath.split(os.sep)[0]
             basename, extension = os.path.splitext(filename)
             if extension.lower() == ".md":
@@ -108,7 +109,7 @@ def generateSite():
 
     # Index
     logging.info("Writing articles index")
-    CONTEXT["ARTICLES"] = articles
+    CONTEXT.ARTICLES = articles
     index = Index(CONTEXT)
     index.write_file()
 
@@ -142,9 +143,9 @@ def main():
     subsites = generateSite()
     for subsite in subsites:
         logging.info("Found subsite '%s'", subsite[1:])
-        CONTEXT["OUTPUT_FOLDER"] = os.path.abspath(os.path.join(BASE_FOLDER, 'dist', subsite[1:]))
-        CONTEXT["BASE_FOLDER"] = os.path.join(SOURCE_FOLDER, subsite)
-        CONTEXT["SOURCE_FOLDER"] = os.path.join(SOURCE_FOLDER, subsite)
+        CONTEXT.OUTPUT_FOLDER = os.path.abspath(os.path.join(BASE_FOLDER, 'dist', subsite[1:]))
+        CONTEXT.BASE_FOLDER = os.path.join(SOURCE_FOLDER, subsite)
+        CONTEXT.SOURCE_FOLDER = os.path.join(SOURCE_FOLDER, subsite)
         generateSite()
 
     logging.info("Completed everything in %f seconds", (time.time() - time_all))

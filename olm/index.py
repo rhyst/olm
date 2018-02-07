@@ -10,10 +10,10 @@ class Index:
 
     def __init__(self, context):
         self.context = context
-        all_files = sorted(context["ARTICLES"], key=lambda k: (k.date), reverse=True)
-        self.articles = [ article for article in all_files if article.type in (context["ARTICLE_TYPES"] + context["INDEX_TYPES"]) ]
-        self.template = context["JINJA_ENV"].get_template('index.html')
-        self.output_filepath = os.path.join(context["OUTPUT_FOLDER"], 'index.html')
+        all_files = sorted(context.ARTICLES, key=lambda k: (k.date), reverse=True)
+        self.articles = [ article for article in all_files if article.type in (context.ARTICLE_TYPES"] + context["INDEX_TYPES) ]
+        self.template = context.JINJA_ENV.get_template('index.html')
+        self.output_filepath = os.path.join(context.OUTPUT_FOLDER, 'index.html')
         self.paginate()
 
     def paginate(self):
@@ -30,7 +30,7 @@ class Index:
     def paginated_path(self, page_number, basepath):
         if page_number == 1:
             return os.path.join(basepath, 'index.html'), '/'
-        return os.path.join(self.context["OUTPUT_FOLDER"],'pg', str(page_number) , 'index.html'), os.path.join('/', 'pg', str(page_number))
+        return os.path.join(self.context.OUTPUT_FOLDER,'pg', str(page_number) , 'index.html'), os.path.join('/', 'pg', str(page_number))
 
 
     def write_file(self):
