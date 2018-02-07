@@ -32,7 +32,7 @@ JINJA_ENV = Environment(
 )
 ARTICLE_TYPES = ['trip', 'tour']
 INDEX_TYPES = ['index', 'stickyindex']
-PLUGINS = ['inlinephotos']
+PLUGINS = ['inlinephotos', 'acyear']
 
 CONTEXT = Map({
     "BASE_FOLDER": BASE_FOLDER,
@@ -93,6 +93,8 @@ def generateSite():
                         else:
                             draft_articles.append(article)
     logging.info("Processed %d articles, %d unlisted articles, %d drafts, and %d pages in %f seconds", len(articles), len(unlisted_articles), len(draft_articles), len(pages), time.time() - time_source_start)
+    signal_sender = signal(Signals.AFTER_ALL_ARTICLES_READ)
+    signal_sender.send((CONTEXT, articles))
 
     logging.info("Writing %d articles", len(articles))
     time_write_start = time.time()

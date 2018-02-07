@@ -55,7 +55,7 @@ class Article:
         self.url             = 'articles/{}'.format(output_filename)
 
         signal_sender = signal(Signals.AFTER_ARTICLE_READ)
-        signal_sender.send(self)
+        signal_sender.send((context, self))
 
     def write_file(self):
         """Write the article to a file"""

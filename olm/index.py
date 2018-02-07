@@ -52,5 +52,6 @@ class Index:
                     pages=self.pages, 
                     page=page,
                     previous_page=previous_page,
-                    next_page=next_page)
+                    next_page=next_page,
+                    **self.context)
                 html_file.write(html)
