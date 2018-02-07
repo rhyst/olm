@@ -13,22 +13,32 @@ class Article:
     def __repr__(self):
         return self.output_filepath
 
-    def __init__(self, context, filepath=None):
-        # Get filenames, paths etc.
-        dirname = os.path.dirname(filepath)
-        basepath, filename = os.path.split(filepath)
-        basename, extension = os.path.splitext(filename)
-        relpath = os.path.relpath(os.path.join(dirname, basename) + '.html', context.SOURCE_FOLDER)
-        
-        # Parse the file for content and metadata
-        with codecs.open(filepath, 'r', encoding='utf8') as md_file:
-            raw_metadata, raw_content = md_parse_meta(md_file.read())
+    def __init__(self, context, filepath=None, metadata=None, content=None, basename=None):
+        self.context = context
+
+        if filepath is not None:
+            # Get filenames, paths etc.
+            dirname = os.path.dirname(filepath)
+            basepath, filename = os.path.split(filepath)
+            basename, extension = os.path.splitext(filename)
+            relpath = os.path.relpath(os.path.join(dirname, basename) + '.html', context.SOURCE_FOLDER)
+            
+            # Parse the file for content and metadata
+            with codecs.open(filepath, 'r', encoding='utf8') as md_file:
+                raw_metadata, raw_content = md_parse_meta(md_file.read())
+        elif metadata is not None and content is not None and basename is not None:
+            raw_content = content
+            raw_metadata = metadata
+        else:
+            raise Exception('Article object not supplied with either filepath or content and metadata.') 
 
         self.content = context.MD(raw_content)
         self.metadata = {}
-        for key in raw_metadata.keys():
-            self.metadata[key.lower()] = raw_metadata[key].strip()
+        for key in raw_metadata:
+            self.metadata[key.lower()] = raw_metadata[key].strip() if isinstance(raw_metadata[key], str) else raw_metadata[key]
         
+
+
         # Set article variables from metadata
         self.date            = datetime.datetime.strptime(self.metadata['date'].strip(), '%Y-%m-%d') if 'date' in self.metadata else datetime.datetime.now()
         self.type            = self.metadata['type'].strip().lower() if 'type' in self.metadata else ''
@@ -57,9 +67,12 @@ class Article:
         signal_sender = signal(Signals.AFTER_ARTICLE_READ)
         signal_sender.send((context, self))
 
-    def write_file(self):
+    def write_file(self, context=None):
+        self.context = context if context is not None else self.context
         """Write the article to a file"""
         os.makedirs(os.path.dirname(self.output_filepath), exist_ok=True)
+        signal_sender = signal(Signals.BEFORE_ARTICLE_WRITE)
+        signal_sender.send((self.context, self))
         with codecs.open(self.output_filepath, 'w', encoding='utf-8') as html_file:
-            html = self.template.render(article={"content": self.content, "date": datetime.datetime.now(), "metadata": self.metadata})
+            html = self.template.render(article={"content": self.content, "date": datetime.datetime.now(), "metadata": self.metadata}, **self.context)
             html_file.write(html)
