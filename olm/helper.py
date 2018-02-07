@@ -1,15 +1,16 @@
 import re
 
-INDENTATION = re.compile(r'^(\s{4,}|\t{2,})(.*)')
+INDENTATION = re.compile(r'^(\s{4,}|\t{2,})(\S.*)')
 META = re.compile(r'^(\w+):\s*(.*)')
 
-def md_parse_meta(text):
+def md_parse_meta(raw_text):
     """Parse the given text into metadata and strip it for a Markdown parser.
     :param text: text to be parsed
     """
-    text = text.split('\n')
+    text = raw_text.split('\n')
     meta = {}
     m = META.match(text[0])
+
     while m:
         key = m.group(1)
         value = m.group(2)
@@ -18,13 +19,15 @@ def md_parse_meta(text):
         if len(text) >= 1:
             i = INDENTATION.match(text[0])
             while i:
-                meta[key] = meta[key] + '\n' + i.group(2)
+                if not isinstance(meta[key], list):
+                    meta[key] = [meta[key]]
+                meta[key].append(i.group(2))
                 text = text[1:]
                 i = INDENTATION.match(text[0])
             m = META.match(text[0])
         else:
             m = False
-        print(key + ':  ' + meta[key])
+
     return meta, '\n'.join(text)
 
 class Map(dict):
