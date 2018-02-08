@@ -1,11 +1,11 @@
 import sys
 import os
-import logging
 import time
 import codecs
 import sass
 from jsmin import jsmin
 from blinker import signal
+import coloredlogs, logging
 
 from settings import load_settings
 from plugins import load_plugins
@@ -21,6 +21,10 @@ if len(sys.argv) < 2:
 
 CONTEXT = None
 
+logger = logging.getLogger('olm')
+coloredlogs.install(level='INFO', logger=logger, fmt='[%(hostname)s] %(message)s')
+
+
 def generateSite():
      # Source markdown files
     articles = []
@@ -28,7 +32,7 @@ def generateSite():
     unlisted_articles = []
     pages = []
     subsites = set()
-    logging.info("Scanning source files")
+    logger.info("Scanning source files")
     time_source_start = time.time()
     for dirname, dirs, files in os.walk(CONTEXT.SOURCE_FOLDER):
         for filename in files:
@@ -40,10 +44,10 @@ def generateSite():
                 if firstfolder[0] == "_":
                     subsites.add(firstfolder)
                 elif firstfolder == "pages":
-                    logging.debug("Found %s", filepath)
+                    logger.debug("Found %s", filepath)
                     pages.append(Page(CONTEXT, filepath))
                 else:
-                    logging.debug("Found %s", filepath)
+                    logger.debug("Found %s", filepath)
                     article = Article(CONTEXT, filepath)
                     if article.type in CONTEXT.ARTICLE_TYPES + CONTEXT.INDEX_TYPES:
                         if article.status == ArticleStatus.ACTIVE:
@@ -52,7 +56,7 @@ def generateSite():
                             unlisted_articles.append(article)
                         else:
                             draft_articles.append(article)
-    logging.info("Processed %d articles, %d unlisted articles, %d drafts, and %d pages in %f seconds", len(articles), len(unlisted_articles), len(draft_articles), len(pages), time.time() - time_source_start)
+    logger.info("Processed %d articles, %d unlisted articles, %d drafts, and %d pages in %f seconds", len(articles), len(unlisted_articles), len(draft_articles), len(pages), time.time() - time_source_start)
 
     signal_sender = signal(Signals.AFTER_ALL_ARTICLES_READ)
     signal_sender.send((CONTEXT, articles))
@@ -60,28 +64,28 @@ def generateSite():
     signal_sender = signal(Signals.BEFORE_WRITING)
     signal_sender.send((CONTEXT, Writer))
 
-    logging.info("Writing %d articles", len(articles))
+    logger.info("Writing %d articles", len(articles))
     time_write_start = time.time()
     for index, article in enumerate(articles):
-        logging.debug("Writing file %d of %d", index + 1, len(articles))
+        logger.debug("Writing file %d of %d", index + 1, len(articles))
         article.write_file()
-    logging.info("Wrote %d articles in %f seconds", len(articles), (time.time() - time_write_start))
+    logger.info("Wrote %d articles in %f seconds", len(articles), (time.time() - time_write_start))
 
-    logging.info("Writing %d pages", len(pages))
+    logger.info("Writing %d pages", len(pages))
     time_write_start = time.time()
     for index, page in enumerate(pages):
-        logging.debug("Writing file %d of %d", index + 1, len(pages))
+        logger.debug("Writing file %d of %d", index + 1, len(pages))
         page.write_file()
-    logging.info("Wrote %d pages in %f seconds", len(pages), (time.time() - time_write_start))
+    logger.info("Wrote %d pages in %f seconds", len(pages), (time.time() - time_write_start))
 
     # Index
-    logging.info("Writing articles index")
+    logger.info("Writing articles index")
     CONTEXT.ARTICLES = articles
     index = Index(CONTEXT)
     index.write_file()
 
     # Static files
-    logging.info("Compiling static files")
+    logger.info("Compiling static files")
     time_static_start = time.time()
     sass.compile(dirname=(os.path.join(CONTEXT.STATIC_FOLDER, 'css'), os.path.join(CONTEXT.OUTPUT_FOLDER, 'theme', 'css')), output_style='compressed')
     for dirname, dirs, files in os.walk(os.path.join(CONTEXT.STATIC_FOLDER, 'js')):
@@ -96,14 +100,13 @@ def generateSite():
                 os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
                 with codecs.open(output_filepath, 'w+', encoding='utf-8') as js_min_file:
                     js_min_file.write(minified)
-    logging.info("Processed static files in %f seconds", time.time() - time_static_start)
+    logger.info("Processed static files in %f seconds", time.time() - time_static_start)
     return subsites
 
 def main():
     time_all = time.time()
     """Main olm function"""
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-    logging.info("Beginning static site generation")
+    logger.info("Beginning static site generation")
 
     settings_file_path = os.path.abspath(os.path.join(sys.argv[1], 'settings.py'))
     
@@ -122,13 +125,13 @@ def main():
     base_folder = CONTEXT.BASE_FOLDER
     source_folder = CONTEXT.SOURCE_FOLDER
     for subsite in subsites:
-        logging.info("Found subsite '%s'", subsite[1:])
+        logger.info("Found subsite '%s'", subsite[1:])
         CONTEXT.OUTPUT_FOLDER = os.path.abspath(os.path.join(base_folder, 'dist', subsite[1:]))
         CONTEXT.BASE_FOLDER = os.path.join(source_folder, subsite)
         CONTEXT.SOURCE_FOLDER = os.path.join(source_folder, subsite)
         generateSite()
 
-    logging.info("Completed everything in %f seconds", (time.time() - time_all))
+    logger.info("Completed everything in %f seconds", (time.time() - time_all))
 
 if __name__== "__main__":
   main()

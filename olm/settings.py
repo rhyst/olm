@@ -46,4 +46,3 @@ def load_settings(site_path, settings_file_path=None):
     for key in user_settings:
         CONTEXT[key] = user_settings[key]
     return CONTEXT
-    #registrations = getattr(py_mod, 'register')()

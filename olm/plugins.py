@@ -1,6 +1,5 @@
 import os
 import sys
-import logging
 import imp
 from blinker import signal
 
@@ -22,5 +21,5 @@ def load_plugins(context):
             sys.path = sys_path
         except Exception as e:
             sys.path = sys_path
-            logging.warn('Plugin %s failed to load.', plugin)
-            logging.warn(e)
+            #logging.warn('Plugin %s failed to load.', plugin)
+            #logging.warn(e)
