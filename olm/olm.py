@@ -11,6 +11,7 @@ from jsmin import jsmin
 from blinker import signal
 import imp
 
+from plugins import load_plugins
 from article import Article
 from index import Index
 from page import Page
@@ -61,22 +62,6 @@ CONTEXT = Map({
     },
     "authors": set()
 })
-
-def loadPlugins():
-    for plugin in CONTEXT['PLUGINS']:
-        try:
-            path = os.path.join(CONTEXT.PLUGINS_FOLDER, plugin, plugin + '.py')
-            py_mod = imp.load_source(plugin, path)
-            registrations = getattr(py_mod, 'register')()
-            if type(registrations) is tuple:
-                registrations = [ registrations ]
-            for registration in registrations:
-                # TODO: Check if valid signal
-                signal_sender = signal(registration[0])
-                signal_sender.connect(registration[1])
-        except Exception as e:
-            logging.warn('Plugin %s failed to load.', plugin)
-            logging.warn(e)
 
 def generateSite():
      # Source markdown files
@@ -162,7 +147,7 @@ def main():
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     logging.info("Beginning static site generation")
 
-    loadPlugins()
+    load_plugins(CONTEXT)
 
     signal_sender = signal(Signals.INITIALISED)
     signal_sender.send((CONTEXT))
