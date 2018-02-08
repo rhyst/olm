@@ -42,11 +42,11 @@ The output html will be placed in the `dist` directory, with articles going into
 Setting            | Default                             | Description
 ---                | ---                                 | ---
 `BASE_FOLDER`      | `sys.argv[1]`                       | The root of the site folder.
-`SOURCE_FOLDER`    | `{{ BASE_FOLDER }}\src`             | The source folder for all markdown files.
-`OUTPUT_FOLDER`    | `{{ BASE_FOLDER }}\dist`            | The output folder for compiled html and static files
-`STATIC_FOLDER`    | `{{ BASE_FOLDER }}\theme\static`    | The folder containing css and js.
-`TEMPLATES_FOLDER` | `{{ BASE_FOLDER }}\theme\templates` | The folder containing the Jinja templates.
-`PLUGINS_FOLDER`   | `{{ BASE_FOLDER }}\plugins`         | The folder containing the plugins.
+`SOURCE_FOLDER`    | `{{BASE_FOLDER}}\src`             | The source folder for all markdown files.
+`OUTPUT_FOLDER`    | `{{BASE_FOLDER}}\dist`            | The output folder for compiled html and static files
+`STATIC_FOLDER`    | `{{BASE_FOLDER}}\theme\static`    | The folder containing css and js.
+`TEMPLATES_FOLDER` | `{{BASE_FOLDER}}\theme\templates` | The folder containing the Jinja templates.
+`PLUGINS_FOLDER`   | `{{BASE_FOLDER}}\plugins`         | The folder containing the plugins.
 `ARTICLE_TYPES`    | `['article']`                       | The `type` metadata of files that will be included as articles.
 `INDEX_TYPES`      | `['index']`                         | The `type` metadata of files that will be included on the index.
 `PLUGINS`          | `[]`                                | List of plugins
