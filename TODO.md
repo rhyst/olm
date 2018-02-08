@@ -1,25 +1,30 @@
 # TODO
 
-* [ ] Implement static files  
+* [ ] Static files  
     - [x] SASS/SCSS compilation
     - [x] JS minification?
-    - [ ] Customisable paths
-    - [ ] Allow ES6/Typescrip?
-* [x] Implement callbacks for plugin style things to run
-* [ ] Add other default content types
+    - [ ] Allow ES6/Typescript?
+* [ ] Plugins    
+    - [x] Implement callbacks for plugin style things to run
+    - [x] Plugins should be added to path so they can use relative import
+    - [ ] More plugin callbacks
+* [ ] Content types
     - [x] Pages
     - [x] Index
     - [ ] Index only content
     - [ ] Subsites
-* [ ] Tidy up main process
-    - [ ] Proper class for CONTEXT
+        * [x] Subsites compiled into own directory
+        * [ ] Subsite has own settings
+        * [ ] Subsite has own themes (inherit from main where possible)
+* [ ] Tidy
+    - [ ] Proper class for CONTEXT?
     - [ ] Make CONTEXT globally accessible?
     - [ ] Sort out filepath stuff
+    - [ ] Shared class for page, article, index to inherit
 * [ ] Configurability
-    - [ ] Add settings file
-    - [ ] Configurable things
-        * [ ] Base url
-        * [ ] Source and build folders
-* [ ] More plugin callbacks
-* [ ] Plugins should be added to path so they can use relative import
-* [ ] Shared class for page, article, index to inherit
+    - [x] Add settings file
+    - [x] Configurable things
+        * [x] Base url
+        * [x] Source and build folders
+        * [ ] Statics folders
+        * [ ] Statics processing options
