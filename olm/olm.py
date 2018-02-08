@@ -1,16 +1,13 @@
 import sys
 import os
 import logging
-import mistune
-import datetime
 import time
 import codecs
-from jinja2 import Environment, FileSystemLoader, select_autoescape
 import sass
 from jsmin import jsmin
 from blinker import signal
-import imp
 
+from settings import load_settings
 from plugins import load_plugins
 from article import Article
 from index import Index
@@ -22,46 +19,7 @@ from writer import Writer
 if len(sys.argv) < 2:
     print("Please identify the source folder")
 
-BASE_FOLDER = os.path.abspath(sys.argv[1])
-SOURCE_FOLDER = os.path.abspath(os.path.join(BASE_FOLDER, 'src'))
-OUTPUT_FOLDER = os.path.abspath(os.path.join(BASE_FOLDER, 'dist'))
-STATIC_FOLDER = os.path.abspath(os.path.join(BASE_FOLDER, 'theme', 'static'))
-TEMPLATES_FOLDER = os.path.abspath(os.path.join(BASE_FOLDER, 'theme', 'templates'))
-PLUGINS_FOLDER = os.path.abspath(os.path.join(BASE_FOLDER, 'plugins',))
-MD = mistune.Markdown()
-JINJA_ENV = Environment(
-    loader=FileSystemLoader([TEMPLATES_FOLDER])
-)
-ARTICLE_TYPES = ['trip', 'tour']
-INDEX_TYPES = ['index', 'stickyindex']
-PLUGINS = ['inlinephotos', 'acyear', 'cavepeeps', 'photoarchive', 'metainserter']
-PHOTO_LOCATION = 'https://union.ic.ac.uk/rcc/caving/photo_archive/'
-ASSET_LOCATION = 'https://union.ic.ac.uk/rcc/caving/assets/'
-SITEURL = "/"
-PHOTOREEL = True
-
-CONTEXT = Map({
-    "BASE_FOLDER": BASE_FOLDER,
-    "SOURCE_FOLDER": SOURCE_FOLDER,
-    "OUTPUT_FOLDER": OUTPUT_FOLDER,
-    "MD": MD,
-    "JINJA_ENV": JINJA_ENV,
-    "ARTICLE_TYPES": ARTICLE_TYPES,
-    "INDEX_TYPES": INDEX_TYPES,
-    "PLUGINS": PLUGINS,
-    "PLUGINS_FOLDER": PLUGINS_FOLDER,
-    "SITEURL": "",
-    "ASSET_LOCATION": ASSET_LOCATION,
-    "PHOTO_LOCATION": PHOTO_LOCATION,
-    "PHOTOREEL": PHOTOREEL,
-    "BADGES": {
-        'lightning': {
-            'src': 'lightning.png',
-            'alt': 'In the bivi'
-        }
-    },
-    "authors": set()
-})
+CONTEXT = None
 
 def generateSite():
      # Source markdown files
@@ -125,16 +83,16 @@ def generateSite():
     # Static files
     logging.info("Compiling static files")
     time_static_start = time.time()
-    sass.compile(dirname=(os.path.join(STATIC_FOLDER, 'css'), os.path.join(OUTPUT_FOLDER, 'theme', 'css')), output_style='compressed')
-    for dirname, dirs, files in os.walk(os.path.join(STATIC_FOLDER, 'js')):
+    sass.compile(dirname=(os.path.join(CONTEXT.STATIC_FOLDER, 'css'), os.path.join(CONTEXT.OUTPUT_FOLDER, 'theme', 'css')), output_style='compressed')
+    for dirname, dirs, files in os.walk(os.path.join(CONTEXT.STATIC_FOLDER, 'js')):
         for filename in files:
             filepath = os.path.join(dirname, filename)
             basename, extension = os.path.splitext(filename)
-            rel_path = os.path.relpath(filepath, os.path.join(STATIC_FOLDER, 'js'))
+            rel_path = os.path.relpath(filepath, os.path.join(CONTEXT.STATIC_FOLDER, 'js'))
             if extension.lower() == ".js":
                 with codecs.open(filepath, encoding='utf-8', errors='ignore') as js_file:
                     minified = js_file.read() #jsmin(js_file.read())
-                output_filepath = os.path.join(OUTPUT_FOLDER, 'theme', 'js', rel_path)
+                output_filepath = os.path.join(CONTEXT.OUTPUT_FOLDER, 'theme', 'js', rel_path)
                 os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
                 with codecs.open(output_filepath, 'w+', encoding='utf-8') as js_min_file:
                     js_min_file.write(minified)
@@ -147,17 +105,27 @@ def main():
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     logging.info("Beginning static site generation")
 
+    settings_file_path = os.path.abspath(os.path.join(sys.argv[1], 'settings.py'))
+    
+    global CONTEXT 
+    if os.path.isfile(settings_file_path):
+        CONTEXT = load_settings(sys.argv[1], settings_file_path)
+    else:
+        CONTEXT = load_settings(sys.argv[1])
+
     load_plugins(CONTEXT)
 
     signal_sender = signal(Signals.INITIALISED)
     signal_sender.send((CONTEXT))
 
     subsites = generateSite()
+    base_folder = CONTEXT.BASE_FOLDER
+    source_folder = CONTEXT.SOURCE_FOLDER
     for subsite in subsites:
         logging.info("Found subsite '%s'", subsite[1:])
-        CONTEXT.OUTPUT_FOLDER = os.path.abspath(os.path.join(BASE_FOLDER, 'dist', subsite[1:]))
-        CONTEXT.BASE_FOLDER = os.path.join(SOURCE_FOLDER, subsite)
-        CONTEXT.SOURCE_FOLDER = os.path.join(SOURCE_FOLDER, subsite)
+        CONTEXT.OUTPUT_FOLDER = os.path.abspath(os.path.join(base_folder, 'dist', subsite[1:]))
+        CONTEXT.BASE_FOLDER = os.path.join(source_folder, subsite)
+        CONTEXT.SOURCE_FOLDER = os.path.join(source_folder, subsite)
         generateSite()
 
     logging.info("Completed everything in %f seconds", (time.time() - time_all))
