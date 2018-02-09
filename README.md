@@ -135,6 +135,16 @@ AFTER_ALL_ARTICLES_READ |`AFTER_ALL_ARTICLES_READ` | After all articles have bee
 BEFORE_WRITING          | `BEFORE_WRITING`         | After all content is scanned and parsed, before anything is written. Passes context and Writer class as arguments.
 BEFORE_ARTICLE_WRITE    | `BEFORE_ARTICLE_WRITE`   | Before each article is written. Passes context and article object as arguments.
 
+## Subsites
+
+Structure
+
+Settings
+
+Themes
+
+Plugins
+
 ## Acknowledgement
 
 Heavily inspired by the [Pelican](https://blog.getpelican.com/) static site generator.
