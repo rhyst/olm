@@ -39,18 +39,25 @@ The output html will be placed in the `dist` directory, with articles going into
 
 ## Settings
 
-Setting            | Default                             | Description
+Below is a list of the settings you can change for your site. Each setting string value can use Jinja style variable replacements to use any setting variables that were defined before it. 
+
+Setting            | Default Value                       | Description
 ---                | ---                                 | ---
 `BASE_FOLDER`      | `sys.argv[1]`                       | The root of the site folder.
-`SOURCE_FOLDER`    | `{{BASE_FOLDER}}\src`             | The source folder for all markdown files.
-`OUTPUT_FOLDER`    | `{{BASE_FOLDER}}\dist`            | The output folder for compiled html and static files
-`STATIC_FOLDER`    | `{{BASE_FOLDER}}\theme\static`    | The folder containing css and js.
-`TEMPLATES_FOLDER` | `{{BASE_FOLDER}}\theme\templates` | The folder containing the Jinja templates.
-`PLUGINS_FOLDER`   | `{{BASE_FOLDER}}\plugins`         | The folder containing the plugins.
+`SOURCE_FOLDER`    | `{{BASE_FOLDER}}\src`               | The source folder for all markdown files.
+`STATIC_FOLDER`    | `{{BASE_FOLDER}}\theme\static`      | The folder containing css and js.
+`TEMPLATES_FOLDER` | `{{BASE_FOLDER}}\theme\templates`   | The folder containing the Jinja templates.
+`CSS_FOLDER`       | `{{BASE_FOLDER\theme\static\css}}`  | The folder containing the css files
+`JS_FOLDER`        | `{{BASE_FOLDER\theme\static\js}}`   | The folder containing the js files
+`PLUGINS_FOLDER`   | `{{BASE_FOLDER}}\plugins`           | The folder containing the plugins.
 `ARTICLE_TYPES`    | `['article']`                       | The `type` metadata of files that will be included as articles.
 `INDEX_TYPES`      | `['index']`                         | The `type` metadata of files that will be included on the index.
 `PLUGINS`          | `[]`                                | List of plugins
 `SITEURL`          | `''`                                | The base url of the site
+`OUTPUT_FOLDER`    | `{{BASE_FOLDER}}\dist`              | The output folder for compiled html and static files
+`OUTPUT_CSS_FOLDER`| `{{OUTPUT_FOLDER}}\theme\css`       | The output folder for compiled css
+`OUTPUT_JS_FOLDER` | `{{OUTPUT_FOLDER}}\theme\js`        | The output folder for compiled js
+`SUBSITES`         | `{}`                                | See subsite section
 
 ## Themes
 
@@ -91,10 +98,10 @@ Plugins can subscribe to signals to modify data during the build process. The pl
             └── mycoolplugin.py
 
 
-Within the plugin file should be the function with your code and a `register` function which should return a list of tuples with the signal you want to subscribe to and the function that should run.
+Within the plugin file should be the function with your code and a `register` function which should return a list of tuples with the signal you want to subscribe to and the function that should run. All functions will receive two parameters; `sender` at the moment is just a string with the signal value, and `logger` is a logging function that will let you log within your plugin. All parameters are named so the order doesn't matter.
 
 ```python
-def mycoolfunction(arg):
+def mycoolfunction(sender, arg, logger):
     # cool code
 
 def register():
@@ -104,10 +111,10 @@ def register():
 Or:
 
 ```python
-def mycoolfunction(arg):
+def mycoolfunction(sender, arg, logger):
     # cool code
 
-def mysecondcoolfunction(arg)
+def mysecondcoolfunction(sender, arg, logger)
     # more cool code
 
 def register():
@@ -119,10 +126,11 @@ def register():
 
 ### Current signals
 
-Signal Name | String Value | Description
----|---|---
+Signal Name             | String Value             | Description
+---                     |---                       |---
 INITIALISED             | `INITIALISED`            | After settings and plugins loaded, before scanning files. Passes context as single argument.
-AFTER_ARTICLE_READ      |`AFTER_ARTICLE_READ`      | After each article has been read and been parsed by Mistune for content and metadata. Passes context and the article as arguments.
+AFTER_ARTICLE_READ      | `AFTER_ARTICLE_READ`     | After each article has been read and been parsed by Mistune for content and metadata. Passes context and the article as arguments.
+AFTER_PAGE_READ         | `AFTER_PAGE_READ`        | After each page has been read and been parsed by Mistune for content and metadata. Passes context and the page as arguments.
 AFTER_ALL_ARTICLES_READ |`AFTER_ALL_ARTICLES_READ` | After all articles have been read and been parsed by Mistune for content and metadata. Passes context and the list of articles as arguments.
 BEFORE_WRITING          | `BEFORE_WRITING`         | After all content is scanned and parsed, before anything is written. Passes context and Writer class as arguments.
 BEFORE_ARTICLE_WRITE    | `BEFORE_ARTICLE_WRITE`   | Before each article is written. Passes context and article object as arguments.

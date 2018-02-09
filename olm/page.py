@@ -4,6 +4,7 @@ import datetime
 import codecs
 import re
 from helper import md_parse_meta
+from signal import signals, Signal
 
 class Page:
     """Object representing an article"""
@@ -28,6 +29,9 @@ class Page:
         self.title           = self.metadata['title'] if 'title' in self.metadata else basename
         self.url             = relpath
         self.output_filepath = join(context.OUTPUT_FOLDER, relpath)
+
+        signal_sender = Signal(signals.AFTER_PAGE_READ)
+        signal_sender.send(context=context, page=self)
 
 
     def write_file(self):

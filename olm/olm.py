@@ -4,29 +4,27 @@ import time
 import codecs
 import sass
 from jsmin import jsmin
-from blinker import signal
-import coloredlogs, logging
+from shutil import copyfile
 
-from settings import load_settings
-from plugins import load_plugins
+from settings import load_settings, load_default_settings
+from plugins import Plugins
 from article import Article
 from index import Index
 from page import Page
-from constants import ArticleStatus, Signals
+from constants import ArticleStatus
 from helper import Map
 from writer import Writer
+from signal import Signal, signals
+
+import logging, verboselogs, coloredlogs 
+logger = verboselogs.VerboseLogger('olm')
+coloredlogs.install(level='INFO', logger=logger, fmt='%(asctime)s [%(name)s] %(message)s')
 
 if len(sys.argv) < 2:
     print("Please identify the source folder")
 
-CONTEXT = None
-
-logger = logging.getLogger('olm')
-coloredlogs.install(level='INFO', logger=logger, fmt='[%(hostname)s] %(message)s')
-
-
-def generateSite():
-     # Source markdown files
+def generateSite(CONTEXT):
+    # Source markdown files
     articles = []
     draft_articles = []
     unlisted_articles = []
@@ -58,11 +56,11 @@ def generateSite():
                             draft_articles.append(article)
     logger.info("Processed %d articles, %d unlisted articles, %d drafts, and %d pages in %f seconds", len(articles), len(unlisted_articles), len(draft_articles), len(pages), time.time() - time_source_start)
 
-    signal_sender = signal(Signals.AFTER_ALL_ARTICLES_READ)
-    signal_sender.send((CONTEXT, articles))
+    signal_sender = Signal(signals.AFTER_ALL_ARTICLES_READ)
+    signal_sender.send(context=CONTEXT, articles=articles)
 
-    signal_sender = signal(Signals.BEFORE_WRITING)
-    signal_sender.send((CONTEXT, Writer))
+    signal_sender = Signal(signals.BEFORE_WRITING)
+    signal_sender.send(context=CONTEXT, Writer=Writer)
 
     logger.info("Writing %d articles", len(articles))
     time_write_start = time.time()
@@ -87,16 +85,24 @@ def generateSite():
     # Static files
     logger.info("Compiling static files")
     time_static_start = time.time()
-    sass.compile(dirname=(os.path.join(CONTEXT.STATIC_FOLDER, 'css'), os.path.join(CONTEXT.OUTPUT_FOLDER, 'theme', 'css')), output_style='compressed')
-    for dirname, dirs, files in os.walk(os.path.join(CONTEXT.STATIC_FOLDER, 'js')):
+    sass.compile(dirname=(CONTEXT.CSS_FOLDER, CONTEXT.OUTPUT_CSS_FOLDER), output_style='compressed')
+    for dirname, dirs, files in os.walk(CONTEXT.CSS_FOLDER):
         for filename in files:
             filepath = os.path.join(dirname, filename)
             basename, extension = os.path.splitext(filename)
-            rel_path = os.path.relpath(filepath, os.path.join(CONTEXT.STATIC_FOLDER, 'js'))
+            rel_path = os.path.relpath(filepath, CONTEXT.CSS_FOLDER)
+            if extension.lower() == ".css":
+                os.makedirs(os.path.dirname(os.path.join(CONTEXT.OUTPUT_CSS_FOLDER, rel_path)), exist_ok=True)
+                copyfile(filepath, os.path.join(CONTEXT.OUTPUT_CSS_FOLDER, rel_path))
+    for dirname, dirs, files in os.walk(CONTEXT.JS_FOLDER):
+        for filename in files:
+            filepath = os.path.join(dirname, filename)
+            basename, extension = os.path.splitext(filename)
+            rel_path = os.path.relpath(filepath, CONTEXT.JS_FOLDER)
             if extension.lower() == ".js":
                 with codecs.open(filepath, encoding='utf-8', errors='ignore') as js_file:
-                    minified = js_file.read() #jsmin(js_file.read())
-                output_filepath = os.path.join(CONTEXT.OUTPUT_FOLDER, 'theme', 'js', rel_path)
+                    minified = js_file.read()
+                output_filepath = os.path.join(CONTEXT.OUTPUT_JS_FOLDER, rel_path)
                 os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
                 with codecs.open(output_filepath, 'w+', encoding='utf-8') as js_min_file:
                     js_min_file.write(minified)
@@ -108,30 +114,36 @@ def main():
     """Main olm function"""
     logger.info("Beginning static site generation")
 
+    CONTEXT = load_default_settings(sys.argv[1])
+
     settings_file_path = os.path.abspath(os.path.join(sys.argv[1], 'settings.py'))
-    
-    global CONTEXT 
     if os.path.isfile(settings_file_path):
-        CONTEXT = load_settings(sys.argv[1], settings_file_path)
-    else:
-        CONTEXT = load_settings(sys.argv[1])
+        CONTEXT = load_settings(CONTEXT, settings_file_path=settings_file_path)
 
-    load_plugins(CONTEXT)
+    plugins = Plugins(CONTEXT)
 
-    signal_sender = signal(Signals.INITIALISED)
-    signal_sender.send((CONTEXT))
+    signal_sender = Signal(signals.INITIALISED)
+    signal_sender.send(context=CONTEXT)
 
-    subsites = generateSite()
+    subsites = generateSite(CONTEXT)
+
     base_folder = CONTEXT.BASE_FOLDER
     source_folder = CONTEXT.SOURCE_FOLDER
     for subsite in subsites:
-        logger.info("Found subsite '%s'", subsite[1:])
-        CONTEXT.OUTPUT_FOLDER = os.path.abspath(os.path.join(base_folder, 'dist', subsite[1:]))
-        CONTEXT.BASE_FOLDER = os.path.join(source_folder, subsite)
-        CONTEXT.SOURCE_FOLDER = os.path.join(source_folder, subsite)
-        generateSite()
+        plugins.unload_plugins()
+        subsite_name = subsite[1:]
+        logger.info("Found subsite '%s'", subsite_name)
+        if subsite_name in CONTEXT.SUBSITES:
+            subsite_context = load_settings(CONTEXT, settings=CONTEXT.SUBSITES[subsite_name])
+        else:
+            subsite_context = CONTEXT
+        plugins.load_plugins(subsite_context)
+        subsite_context.OUTPUT_FOLDER = os.path.abspath(os.path.join(base_folder, 'dist', subsite_name))
+        subsite_context.BASE_FOLDER = os.path.join(source_folder, subsite)
+        subsite_context.SOURCE_FOLDER = os.path.join(source_folder, subsite)
+        generateSite(subsite_context)
 
-    logger.info("Completed everything in %f seconds", (time.time() - time_all))
+    logger.success("Completed everything in %f seconds", (time.time() - time_all))
 
 if __name__== "__main__":
   main()

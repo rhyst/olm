@@ -8,14 +8,15 @@
     - [x] Implement callbacks for plugin style things to run
     - [x] Plugins should be added to path so they can use relative import
     - [ ] More plugin callbacks
-* [ ] Content types
+* [ ] Content
     - [x] Pages
     - [x] Index
+    - [ ] Implement authors
     - [ ] Index only content
-    - [ ] Subsites
+    - [x] Subsites
         * [x] Subsites compiled into own directory
-        * [ ] Subsite has own settings
-        * [ ] Subsite has own themes (inherit from main where possible)
+        * [x] Subsite has own settings
+        * [x] Subsite has own themes (inherit from main where possible)
 * [ ] Tidy
     - [ ] Proper class for CONTEXT?
     - [ ] Make CONTEXT globally accessible?
@@ -26,5 +27,5 @@
     - [x] Configurable things
         * [x] Base url
         * [x] Source and build folders
-        * [ ] Statics folders
+        * [x] Statics folders
         * [ ] Statics processing options

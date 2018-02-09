@@ -3,10 +3,10 @@ import datetime
 import codecs
 import re
 from urllib.parse import urljoin
-from blinker import signal
 
 from helper import md_parse_meta
-from constants import ArticleStatus, Signals
+from constants import ArticleStatus
+from signal import Signal, signals
 
 class Article:
     """Object representing an article"""
@@ -64,15 +64,15 @@ class Article:
         self.output_filepath = os.path.join(context.OUTPUT_FOLDER, 'articles', output_filename)
         self.url             = 'articles/{}'.format(output_filename)
 
-        signal_sender = signal(Signals.AFTER_ARTICLE_READ)
-        signal_sender.send((context, self))
+        signal_sender = Signal(signals.AFTER_ARTICLE_READ)
+        signal_sender.send(context=context, article=self)
 
     def write_file(self, context=None):
         self.context = context if context is not None else self.context
         """Write the article to a file"""
         os.makedirs(os.path.dirname(self.output_filepath), exist_ok=True)
-        signal_sender = signal(Signals.BEFORE_ARTICLE_WRITE)
-        signal_sender.send((self.context, self))
+        signal_sender = Signal(signals.BEFORE_ARTICLE_WRITE)
+        signal_sender.send(context=self.context, article=self)
         with codecs.open(self.output_filepath, 'w', encoding='utf-8') as html_file:
             html = self.template.render(article={"content": self.content, "date": datetime.datetime.now(), "metadata": self.metadata}, **self.context)
             html_file.write(html)
