@@ -1,9 +1,8 @@
 from blinker import signal
 from helper import Map
-import logging, verboselogs, coloredlogs 
+from logger import get_logger
 
-logger = verboselogs.VerboseLogger('olm.signal')
-coloredlogs.install(level='INFO', logger=logger, fmt='%(asctime)s [%(name)s] %(message)s')
+logger = get_logger('olm.signal')
 
 signals = Map({
     'INITIALISED':              "INITIALISED",             # args: context
@@ -25,5 +24,5 @@ class Signal:
 
     def send(self, **kwargs):
         logger.debug('Sending signal "%s"', self.signal_value)
-        self.sender.send(self.signal_value, logger=logger, **kwargs)
+        self.sender.send(self.signal_value, **kwargs)
 

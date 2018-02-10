@@ -2,10 +2,9 @@ import os
 import sys
 import imp
 from blinker import signal
-import logging, verboselogs, coloredlogs 
+from logger import get_logger
 
-logger = verboselogs.VerboseLogger('olm.plugins')
-coloredlogs.install(level='INFO', logger=logger, fmt='%(asctime)s [%(name)s] %(message)s')
+logger = get_logger('olm.plugins')
 
 class Plugins:
     def __init__(self, context):

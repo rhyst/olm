@@ -15,10 +15,9 @@ from constants import ArticleStatus
 from helper import Map
 from writer import Writer
 from signal import Signal, signals
+from logger import get_logger
 
-import logging, verboselogs, coloredlogs 
-logger = verboselogs.VerboseLogger('olm')
-coloredlogs.install(level='INFO', logger=logger, fmt='%(asctime)s [%(name)s] %(message)s')
+logger = get_logger('olm')
 
 if len(sys.argv) < 2:
     print("Please identify the source folder")
@@ -54,7 +53,7 @@ def generateSite(CONTEXT):
                             unlisted_articles.append(article)
                         else:
                             draft_articles.append(article)
-    logger.info("Processed %d articles, %d unlisted articles, %d drafts, and %d pages in %f seconds", len(articles), len(unlisted_articles), len(draft_articles), len(pages), time.time() - time_source_start)
+    logger.info("Processed %d articles, %d unlisted articles, %d drafts, and %d pages in %f seconds", len(articles), len(unlisted_articles), len(draft_articles), len(pages), time.time() - time_source_start)            
 
     signal_sender = Signal(signals.AFTER_ALL_ARTICLES_READ)
     signal_sender.send(context=CONTEXT, articles=articles)

@@ -4,10 +4,9 @@ import mistune
 import re
 from helper import Map
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-import logging, verboselogs, coloredlogs 
+from logger import get_logger
 
-logger = verboselogs.VerboseLogger('olm.settings')
-coloredlogs.install(level='INFO', logger=logger, fmt='%(asctime)s [%(name)s] %(message)s')
+logger = get_logger('olm.settings')
 
 def load_default_settings(path):
     logger.info('Loading default settings')
