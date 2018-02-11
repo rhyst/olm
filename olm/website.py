@@ -33,7 +33,15 @@ class Site:
         unlisted_articles = []
         pages = []
         subsites = set()
+
         CONTEXT['authors'] = {}
+        CONTEXT['all_files'] = []
+        CONTEXT['articles'] = []
+        CONTEXT['pages'] = []
+
+        signal_sender = Signal(signals.SITE_INITIALISED)
+        signal_sender.send(context=CONTEXT)
+
         logger.info("Scanning source files")
         time_source_start = time.time()
         for dirname, dirs, files in os.walk(CONTEXT.SOURCE_FOLDER):
@@ -65,9 +73,9 @@ class Site:
                         all_files.append(article)
         logger.info("Processed %d articles, %d unlisted articles, %d drafts, and %d pages in %.3f seconds", len(articles), len(unlisted_articles), len(draft_articles), len(pages), time.time() - time_source_start)            
 
-        CONTEXT['all_files'] = all_files
-        CONTEXT['articles'] = sorted(articles, key=lambda k: (k.date), reverse=True)
-        CONTEXT['pages'] = [pages]
+        CONTEXT['all_files'].extend(all_files)
+        CONTEXT['articles'].extend(sorted(articles, key=lambda k: (k.date), reverse=True))
+        CONTEXT['pages'].extend(pages)
 
         signal_sender = Signal(signals.AFTER_ALL_ARTICLES_READ)
         signal_sender.send(context=CONTEXT, articles=CONTEXT.articles)
