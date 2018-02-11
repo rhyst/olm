@@ -10,7 +10,7 @@ setup(name='olm',
     packages=['olm'],
     zip_safe=False,
     entry_points = {
-        'console_scripts': ['olm-run=olm:main'],
+        'console_scripts': ['olm=olm:main'],
     },
     install_requires=[
         'astroid==1.6.1',
