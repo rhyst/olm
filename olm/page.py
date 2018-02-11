@@ -19,7 +19,7 @@ class Page:
         # Parse the file for content and metadata
         with codecs.open(filepath, 'r', encoding='utf8') as md_file:
             reader = Reader(md_file.read())
-            metadata, raw_content = reader.parse_meta()
+            metadata, raw_content = reader.parse()
 
         self.content = context.MD(raw_content)
         self.metadata = metadata
