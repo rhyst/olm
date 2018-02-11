@@ -8,6 +8,7 @@ from olm.constants import ArticleStatus
 from olm.signals import Signal, signals
 from olm.reader import Reader
 from olm.writer import Writer
+from olm.helper import merge_dictionaries
 
 class Article:
     """Object representing an article"""
@@ -25,12 +26,16 @@ class Article:
             # Parse the file for content and metadata
             with codecs.open(filepath, 'r', encoding='utf8') as md_file:
                 reader = Reader(md_file.read())
-                metadata, raw_content = reader.parse_meta()
+                metadata, raw_content = reader.parse()
 
         elif metadata is not None and content is not None and basename is not None:
             raw_content = content
         else:
             raise Exception('Article object not supplied with either filepath or content and metadata.') 
+        
+        #TODO: this doesnt seem to work
+        signal_sender = Signal(signals.BEFORE_MD_CONVERT)
+        signal_sender.send(context=context, content=raw_content)
         
         self.content = context.MD(raw_content)
         self.metadata = metadata
@@ -63,7 +68,11 @@ class Article:
         self.template        = 'article.html'
         self.source_filepath = filepath
         if self.date and self.location:
-            output_filename = '{}-{}.html'.format(self.location.lower(), self.date.strftime('%Y-%m-%d'))
+            if 'ARTICLE_SLUG' in context:
+                slug_dict = merge_dictionaries(vars(self), {'date': self.date.strftime('%Y-%m-%d'), 'location': self.location.lower()})
+                output_filename = context.ARTICLE_SLUG.format(**slug_dict)
+            else:
+                output_filename = '{}-{}.html'.format(self.location.lower(), self.date.strftime('%Y-%m-%d'))
         else:
             output_filename = '{}.html'.format(basename)
 
