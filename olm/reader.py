@@ -81,7 +81,7 @@ class Reader:
                 # Get unique id for header link
                 link_id = self.get_id(title)
                 # Replace markdown header with html header + id
-                html_header = '<h{no_of_hashes} id="{link_id}">{title}</h{no_of_hashes}>'.format(title=title, link_id=link_id, no_of_hashes=no_of_hashes)
+                html_header = '<h{no_of_hashes} id="{link_id}">{title}</h{no_of_hashes}>\n'.format(title=title, link_id=link_id, no_of_hashes=no_of_hashes)
                 replacements.append((index, html_header))
                 # Construct list of header links by comparing
                 # adjacent header numbers as list depth
