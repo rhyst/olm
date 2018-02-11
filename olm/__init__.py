@@ -1,6 +1,7 @@
 import sys
 import os
 import time
+import argparse
 
 from olm.context import load_context, load_default_context
 from olm.plugins import Plugins
@@ -11,19 +12,31 @@ from olm.website import Site
 logger = get_logger('olm')
 
 def main():
+    parser = argparse.ArgumentParser(description='Olm static site generator',)
+    parser.add_argument('src', action="store", help='Path to site folder')
+    parser.add_argument('-s', action="store", default=None, help='Path to settings.py file')
+    args = parser.parse_args()
+
     if len(sys.argv) < 2:
-        print("Please identify the source folder")
+        logger.warn("Olm requires the path to the site folder")
+        logger.warn("\tolm ./path/to/my/site/")
         return
 
     time_all = time.time()
     """Main olm function"""
     logger.notice("Beginning static site generation")
 
-    CONTEXT = load_default_context(sys.argv[1])
+    CONTEXT = load_default_context(args.src)
 
-    settings_file_path = os.path.abspath(os.path.join(sys.argv[1], 'settings.py'))
+    if args.s is not None:
+        settings_file_path = os.path.abspath(args.s)
+    else:
+        settings_file_path = os.path.abspath(os.path.join(args.src, 'settings.py'))
     if os.path.isfile(settings_file_path):
         CONTEXT = load_context(CONTEXT, settings_file_path=settings_file_path)
+    else:
+        logger.error('No valid settings.py file found')
+        sys.exit()
 
     plugins = Plugins(CONTEXT)
 
