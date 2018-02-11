@@ -6,7 +6,8 @@ logger = get_logger('olm.signal')
 
 signals = Map({
     'INITIALISED':              "INITIALISED",             # args: context
-    'SITE_INITIALISED':         "SITE_INITIALISED",         # args: context      
+    'SITE_INITIALISED':         "SITE_INITIALISED",        # args: context
+    "BEFORE_MD_CONVERT":        "BEFORE_MD_CONVERT",       # args: context, content      
     'AFTER_ARTICLE_READ':       "AFTER_ARTICLE_READ",      # args: context, article
     'AFTER_PAGE_READ':          "AFTER_PAGE_READ",         # args: context, article
     'AFTER_ALL_ARTICLES_READ':  "AFTER_ALL_ARTICLES_READ", # args: context, articles
