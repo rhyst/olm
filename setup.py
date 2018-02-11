@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='olm',
-    version='0.0.1',
+    version='0.0.3',
     description='Static site generator',
     url='https://github.com/rhyst/olm',
     author='Rhys Tyers',
