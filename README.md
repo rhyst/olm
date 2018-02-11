@@ -52,12 +52,13 @@ Setting            | Default Value                       | Description
 `PLUGINS_FOLDER`   | `{{BASE_FOLDER}}\plugins`           | The folder containing the plugins.
 `ARTICLE_TYPES`    | `['article']`                       | The `type` metadata of files that will be included as articles.
 `INDEX_TYPES`      | `['index']`                         | The `type` metadata of files that will be included on the index.
-`PLUGINS`          | `[]`                                | List of plugins
-`SITEURL`          | `''`                                | The base url of the site
-`OUTPUT_FOLDER`    | `{{BASE_FOLDER}}\dist`              | The output folder for compiled html and static files
-`OUTPUT_CSS_FOLDER`| `{{OUTPUT_FOLDER}}\theme\css`       | The output folder for compiled css
-`OUTPUT_JS_FOLDER` | `{{OUTPUT_FOLDER}}\theme\js`        | The output folder for compiled js
-`SUBSITES`         | `{}`                                | See subsite section
+`PLUGINS`          | `[]`                                | List of plugins.
+`SITEURL`          | `''`                                | The base url of the site.
+`OUTPUT_FOLDER`    | `{{BASE_FOLDER}}\dist`              | The output folder for compiled html and static files.
+`OUTPUT_CSS_FOLDER`| `{{OUTPUT_FOLDER}}\theme\css`       | The output folder for compiled css.
+`OUTPUT_JS_FOLDER` | `{{OUTPUT_FOLDER}}\theme\js`        | The output folder for compiled js.
+`SUBSITES`         | `{}`                                | See subsite section.
+`ARTICLE_SLUG`     | `'{location}-{date}.html'`          | The format of article filenames. The curly brace vars can be any Article attribute.
 
 ## Themes
 
