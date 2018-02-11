@@ -1,6 +1,6 @@
 import codecs
 import os
-from helper import merge_dictionaries
+from olm.helper import merge_dictionaries
 
 class Writer:
     def __init__(self, context, relative_path, template, **kwargs):
