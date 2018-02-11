@@ -11,12 +11,13 @@
 * [ ] Content
     - [x] Pages
     - [x] Index
-    - [ ] Implement authors
+    - [x] Implement authors
     - [ ] Index only content
     - [x] Subsites
         * [x] Subsites compiled into own directory
         * [x] Subsite has own settings
         * [x] Subsite has own themes (inherit from main where possible)
+    - [ ] Source file linking
 * [ ] Tidy
     - [ ] Proper class for CONTEXT?
     - [ ] Make CONTEXT globally accessible?
