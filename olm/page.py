@@ -14,7 +14,7 @@ class Page:
         dirname = os.path.dirname(filepath)
         basepath, filename = os.path.split(filepath)
         basename, extension = os.path.splitext(filename)
-        relpath = os.path.relpath(os.path.join(dirname, basename) + '.html', context.SOURCE_FOLDER)
+        relpath = os.path.relpath(os.path.join(dirname, basename.lower()) + '.html', context.SOURCE_FOLDER)
         
         # Parse the file for content and metadata
         with codecs.open(filepath, 'r', encoding='utf8') as md_file:
