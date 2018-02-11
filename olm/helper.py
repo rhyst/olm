@@ -1,3 +1,8 @@
+def merge_dictionaries(x, y):
+    z = x.copy()
+    z.update(y)
+    return z
+
 class Map(dict):
     def __init__(self, *args, **kwargs):
         super(Map, self).__init__(*args, **kwargs)

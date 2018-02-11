@@ -2,7 +2,7 @@ import os
 import imp
 import mistune
 import re
-from olm.helper import Map
+from olm.helper import Map, merge_dictionaries
 from olm.logger import get_logger
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -63,7 +63,7 @@ def load_context(CONTEXT, settings_file_path=None, settings=None):
         user_settings = settings
     
     # Combine default and site settings
-    CONTEXT = Map({**CONTEXT, **user_settings})
+    CONTEXT = Map(merge_dictionaries(CONTEXT, user_settings))
 
     for key in CONTEXT:
         # Do variable substitutions in settings strings

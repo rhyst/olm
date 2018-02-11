@@ -31,7 +31,7 @@ class Article:
             raw_content = content
         else:
             raise Exception('Article object not supplied with either filepath or content and metadata.') 
-
+        
         self.content = context.MD(raw_content)
         self.metadata = metadata
 
@@ -59,7 +59,6 @@ class Article:
                 context['authors'][author].append(self)
             else:
                 context['authors'][author] = [self]
-
         # Work out other variables
         self.template        = 'article.html'
         self.source_filepath = filepath
