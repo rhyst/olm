@@ -3,8 +3,9 @@ from os.path import dirname, splitext, relpath, join
 import datetime
 import codecs
 import re
-from helper import md_parse_meta
-from signal import signals, Signal
+from olm.signals import signals, Signal
+from olm.reader import Reader
+from olm.writer import Writer
 
 class Page:
     """Object representing an article"""
@@ -17,26 +18,28 @@ class Page:
         
         # Parse the file for content and metadata
         with codecs.open(filepath, 'r', encoding='utf8') as md_file:
-            raw_metadata, raw_content = md_parse_meta(md_file.read())
+            reader = Reader(md_file.read())
+            metadata, raw_content = reader.parse_meta()
 
         self.content = context.MD(raw_content)
-        self.metadata = {}
-        for key in raw_metadata.keys():
-            self.metadata[key.lower()] = raw_metadata[key].strip()
+        self.metadata = metadata
 
         self.source_filepath = filepath
-        self.template        = context.JINJA_ENV.get_template('article.html')
+        self.template        = 'page.html'
         self.title           = self.metadata['title'] if 'title' in self.metadata else basename
         self.url             = relpath
         self.output_filepath = join(context.OUTPUT_FOLDER, relpath)
+        self.context = context
 
         signal_sender = Signal(signals.AFTER_PAGE_READ)
         signal_sender.send(context=context, page=self)
 
 
-    def write_file(self):
-        """Write the article to a file"""
-        os.makedirs(os.path.dirname(self.output_filepath), exist_ok=True)
-        with codecs.open(self.output_filepath, 'w', encoding='utf-8') as html_file:
-            html = self.template.render(article={"content": self.content, "date": datetime.datetime.now(), "metadata": self.metadata})
-            html_file.write(html)
+    def write_file(self, context=None):
+        self.context = context if context is not None else self.context
+        writer = Writer(
+            self.context, 
+            self.output_filepath, 
+            self.template,
+            page=self)
+        writer.write_file()

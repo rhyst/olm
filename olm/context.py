@@ -2,14 +2,14 @@ import os
 import imp
 import mistune
 import re
-from helper import Map
+from olm.helper import Map
+from olm.logger import get_logger
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from logger import get_logger
 
-logger = get_logger('olm.settings')
+logger = get_logger('olm.context')
 
-def load_default_settings(path):
-    logger.info('Loading default settings')
+def load_default_context(path):
+    logger.info('Loading default context')
     BASE_FOLDER         = os.path.abspath(path)
     SOURCE_FOLDER       = os.path.abspath(os.path.join(BASE_FOLDER, 'src'))
     STATIC_FOLDER       = os.path.abspath(os.path.join(BASE_FOLDER, 'theme', 'static'))
@@ -28,31 +28,32 @@ def load_default_settings(path):
     OUTPUT_FOLDER       = os.path.abspath(os.path.join(BASE_FOLDER, 'dist'))
     OUTPUT_CSS_FOLDER   = os.path.abspath(os.path.join(OUTPUT_FOLDER, 'theme', 'css'))
     OUTPUT_JS_FOLDER    = os.path.abspath(os.path.join(OUTPUT_FOLDER, 'theme', 'js'))
+    NO_SCAN             = []
 
     CONTEXT = Map({
-        "BASE_FOLDER": BASE_FOLDER,
-        "SOURCE_FOLDER": SOURCE_FOLDER,
-        "OUTPUT_FOLDER": OUTPUT_FOLDER,
-        "STATIC_FOLDER": STATIC_FOLDER,
-        "CSS_FOLDER": CSS_FOLDER,
-        "JS_FOLDER": JS_FOLDER,
-        "MD": MD,
-        "JINJA_ENV": JINJA_ENV,
-        "ARTICLE_TYPES": ARTICLE_TYPES,
-        "INDEX_TYPES": INDEX_TYPES,
-        "PLUGINS": PLUGINS,
-        "PLUGINS_FOLDER": PLUGINS_FOLDER,
-        "SITEURL": SITEURL,
-        "SUBSITES": {},
-        "OUTPUT_CSS_FOLDER": OUTPUT_CSS_FOLDER,
-        "OUTPUT_JS_FOLDER": OUTPUT_JS_FOLDER,
-        "authors": set()
+        "BASE_FOLDER":          BASE_FOLDER,
+        "SOURCE_FOLDER":        SOURCE_FOLDER,
+        "OUTPUT_FOLDER":        OUTPUT_FOLDER,
+        "STATIC_FOLDER":        STATIC_FOLDER,
+        "CSS_FOLDER":           CSS_FOLDER,
+        "JS_FOLDER":            JS_FOLDER,
+        "MD":                   MD,
+        "JINJA_ENV":            JINJA_ENV,
+        "ARTICLE_TYPES":        ARTICLE_TYPES,
+        "INDEX_TYPES":          INDEX_TYPES,
+        "PLUGINS":              PLUGINS,
+        "PLUGINS_FOLDER":       PLUGINS_FOLDER,
+        "SITEURL":              SITEURL,
+        "SUBSITES":             {},
+        "OUTPUT_CSS_FOLDER":    OUTPUT_CSS_FOLDER,
+        "OUTPUT_JS_FOLDER":     OUTPUT_JS_FOLDER,
+        "NO_SCAN":              NO_SCAN
     })
 
     return CONTEXT
 
-def load_settings(CONTEXT, settings_file_path=None, settings=None):
-    logger.info('Loading site settings')
+def load_context(CONTEXT, settings_file_path=None, settings=None):
+    logger.info('Loading site context')
 
     # Load the file and extract the settings dict
     if (settings_file_path is not None):

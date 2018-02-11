@@ -3,14 +3,14 @@ import datetime
 import codecs
 import re
 import math
-from helper import md_parse_meta
+from olm.writer import Writer
 
 class Index:
     """Object representing an index listing"""
 
     def __init__(self, context):
         self.context = context
-        all_files = sorted(context.ARTICLES, key=lambda k: (k.date), reverse=True)
+        all_files = context.articles
         self.articles = [ article for article in all_files if article.type in (context.ARTICLE_TYPES + context.INDEX_TYPES) ]
         self.template = context.JINJA_ENV.get_template('index.html')
         self.output_filepath = os.path.join(context.OUTPUT_FOLDER, 'index.html')
@@ -45,13 +45,12 @@ class Index:
                 previous_filepath, previous_page = self.paginated_path(page_number - 1, dirname)
             if i < len(self.pages):
                 next_filepath, next_page = self.paginated_path(page_number + 1, dirname)
-            os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
-            with codecs.open(output_filepath, 'w', encoding='utf-8') as html_file:
-                html = self.template.render(
-                    articles=self.articles, 
-                    pages=self.pages, 
-                    page=page,
-                    previous_page=previous_page,
-                    next_page=next_page,
-                    **self.context)
-                html_file.write(html)
+            writer = Writer(
+                self.context, 
+                output_filepath, 
+                self.template,
+                index_pages=self.pages, 
+                current_page=page,
+                previous_page=previous_page,
+                next_page=next_page)
+            writer.write_file()

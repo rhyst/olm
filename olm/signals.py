@@ -1,6 +1,6 @@
 from blinker import signal
-from helper import Map
-from logger import get_logger
+from olm.helper import Map
+from olm.logger import get_logger
 
 logger = get_logger('olm.signal')
 
@@ -10,7 +10,8 @@ signals = Map({
     'AFTER_PAGE_READ':          "AFTER_PAGE_READ",         # args: context, article
     'AFTER_ALL_ARTICLES_READ':  "AFTER_ALL_ARTICLES_READ", # args: context, articles
     'BEFORE_WRITING':           "BEFORE_WRITING",          # args: context
-    'BEFORE_ARTICLE_WRITE':     "BEFORE_ARTICLE_WRITE"     # args: context, article
+    'BEFORE_ARTICLE_WRITE':     "BEFORE_ARTICLE_WRITE",    # args: context, article
+    'AFTER_WRITING':            "AFTER_WRITING"            # args: context, article
 })
 
 class Signal:

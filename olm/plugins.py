@@ -2,7 +2,7 @@ import os
 import sys
 import imp
 from blinker import signal
-from logger import get_logger
+from olm.logger import get_logger
 
 logger = get_logger('olm.plugins')
 
