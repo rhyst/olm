@@ -17,11 +17,12 @@ class Article:
 
     def __init__(self, context, filepath=None, metadata=None, content=None, basename=None):
         if filepath is not None:
+            self.filepath = filepath
             # Get filenames, paths etc
-            dirname = os.path.dirname(filepath)
-            basepath, filename = os.path.split(filepath)
-            basename, extension = os.path.splitext(filename)
-            relpath = os.path.relpath(os.path.join(dirname, basename) + '.html', context.SOURCE_FOLDER)
+            self.dirname = os.path.dirname(filepath)
+            self.basepath, self.filename = os.path.split(filepath)
+            self.basename, self.extension = os.path.splitext(self.filename)
+            self.relpath = os.path.relpath(os.path.join(self.dirname, self.basename) + '.html', context.SOURCE_FOLDER)
             
             # Parse the file for content and metadata
             with codecs.open(filepath, 'r', encoding='utf8') as md_file:
