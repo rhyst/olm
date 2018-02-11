@@ -51,6 +51,7 @@ class Index:
                 self.template,
                 index_pages=self.pages, 
                 current_page=page,
+                current_page_number=page_number,
                 previous_page=previous_page,
                 next_page=next_page)
             writer.write_file()
