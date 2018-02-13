@@ -99,6 +99,59 @@ Plugins can subscribe to signals to modify data during the build process. The pl
             └── mycoolplugin.py
 
 
+### Current signals
+
+Signal Name             | String Value             | Description
+---                     |---                       |---
+INITIALISED             | `INITIALISED`            | After settings and plugins loaded, before scanning files. Passes context as single argument.
+AFTER_ARTICLE_READ      | `AFTER_ARTICLE_READ`     | After each article has been read and been parsed by Mistune for content and metadata. Passes context and the article as arguments.
+AFTER_PAGE_READ         | `AFTER_PAGE_READ`        | After each page has been read and been parsed by Mistune for content and metadata. Passes context and the page as arguments.
+AFTER_ALL_ARTICLES_READ |`AFTER_ALL_ARTICLES_READ` | After all articles have been read and been parsed by Mistune for content and metadata. Passes context and the list of articles as arguments.
+BEFORE_WRITING          | `BEFORE_WRITING`         | After all content is scanned and parsed, before anything is written. Passes context and Writer class as arguments.
+BEFORE_ARTICLE_WRITE    | `BEFORE_ARTICLE_WRITE`   | Before each article is written. Passes context and article object as arguments.
+
+## Subsites
+
+### Structure
+
+The content of a subsite should be placed in your `src` directory, in a subdirectory with a name beginning with a an underscore (e.g. `_mysubsite`). Multiple subsites can 
+be added. The structure is otherwise the same as a normal site. Within the subsite subdirectory, pages will be drawn from the `pages` subdirectory and all other markdown 
+files will be treated initially as articles.
+
+### Settings
+
+Subsites take the same settings that a normal site does. These should be nested under `'SUBSITES'` and your subsite name in your settings.py. e.g.
+
+    SETTINGS = {
+        "ARTICLE_SLUG": "{title}.html"
+        ...
+        "SUBSITES": {
+            "mysubsite": {
+                "ARTICLE_SLUG": "{date}-{title}.html"
+            }
+        }
+    }
+
+The subsite settings inherit the settings of the main site so you only need overwrite settings you want to be different from the main site.
+
+### Themes
+
+By default the subsite uses the same theme as the main site however you can point it at a different set of templates, css, and js by modifiying the appropriate folder 
+settings in the subsite settings e.g.
+
+    'TEMPLATES_FOLDER': os.path.join('{{ BASE_FOLDER }}', 'theme', 'templates', 'subsites', 'mysubsite'),
+    'CSS_FOLDER': os.path.join('{{ BASE_FOLDER }}', 'theme', 'static', 'subsites', 'mysubsite', 'css'),
+    'JS_FOLDER': os.path.join('{{ BASE_FOLDER }}', 'theme', 'static', 'subsites', 'mysubsite', 'js'),         
+    'OUTPUT_CSS_FOLDER': os.path.join('{{ OUTPUT_FOLDER }}', 'theme', 'subsites', 'mysubsite', 'css'),
+    'OUTPUT_JS_FOLDER': os.path.join('{{ OUTPUT_FOLDER }}', 'theme', 'subsites', 'mysubsite', 'js'),
+
+### Plugins
+
+By default the subsite will use the same set of plugins as the main site. You can set the "PLUGINS" setting in the subsite settings to a different list of plugins. 
+Being able to specify a different plugin path is a TODO.
+
+## Writing plugins
+
 Within the plugin file should be the function with your code and a `register` function which should return a list of tuples with the signal you want to subscribe to and the function that should run. All functions will receive two parameters; `sender` at the moment is just a string with the signal value, and `logger` is a logging function that will let you log within your plugin. All parameters are named so the order doesn't matter.
 
 ```python
@@ -124,27 +177,6 @@ def register():
         ("ANOTHER_SIGNAL", mysecondcoolfunction)
     ]
 ```
-
-### Current signals
-
-Signal Name             | String Value             | Description
----                     |---                       |---
-INITIALISED             | `INITIALISED`            | After settings and plugins loaded, before scanning files. Passes context as single argument.
-AFTER_ARTICLE_READ      | `AFTER_ARTICLE_READ`     | After each article has been read and been parsed by Mistune for content and metadata. Passes context and the article as arguments.
-AFTER_PAGE_READ         | `AFTER_PAGE_READ`        | After each page has been read and been parsed by Mistune for content and metadata. Passes context and the page as arguments.
-AFTER_ALL_ARTICLES_READ |`AFTER_ALL_ARTICLES_READ` | After all articles have been read and been parsed by Mistune for content and metadata. Passes context and the list of articles as arguments.
-BEFORE_WRITING          | `BEFORE_WRITING`         | After all content is scanned and parsed, before anything is written. Passes context and Writer class as arguments.
-BEFORE_ARTICLE_WRITE    | `BEFORE_ARTICLE_WRITE`   | Before each article is written. Passes context and article object as arguments.
-
-## Subsites
-
-Structure
-
-Settings
-
-Themes
-
-Plugins
 
 ## Acknowledgement
 

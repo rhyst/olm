@@ -8,6 +8,7 @@
     - [x] Implement callbacks for plugin style things to run
     - [x] Plugins should be added to path so they can use relative import
     - [ ] More plugin callbacks
+    - [ ] Specify different plug path in settings 
 * [ ] Content
     - [x] Pages
     - [x] Index
@@ -17,12 +18,14 @@
         * [x] Subsites compiled into own directory
         * [x] Subsite has own settings
         * [x] Subsite has own themes (inherit from main where possible)
+        * [ ] Allow specifying output paths
+        * [ ] Allow specifying input paths
     - [ ] Source file linking
+    - [ ] More SLUGS
 * [ ] Tidy
-    - [ ] Proper class for CONTEXT?
-    - [ ] Make CONTEXT globally accessible?
-    - [ ] Sort out filepath stuff
-    - [ ] Shared class for page, article, index to inherit
+    - [ ] Import CONTEXT variable from module as needed rather than passing as parameter. Check this works with plugins.
+    - [ ] Filepath helper class + standardised naming
+    - [ ] Shared class for page, article, index to inherit (not sure this is necessary unless more file types are added)
 * [ ] Configurability
     - [x] Add settings file
     - [x] Configurable things
