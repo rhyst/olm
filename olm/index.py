@@ -6,7 +6,7 @@ import math
 from olm.writer import Writer
 
 class Index:
-    """Object representing an index listing"""
+    """Represents an index listing"""
 
     def __init__(self, context):
         self.context = context

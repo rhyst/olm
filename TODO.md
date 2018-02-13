@@ -25,7 +25,7 @@
 * [ ] Tidy
     - [ ] Import CONTEXT variable from module as needed rather than passing as parameter. Check this works with plugins.
     - [ ] Filepath helper class + standardised naming
-    - [ ] Shared class for page, article, index to inherit (not sure this is necessary unless more file types are added)
+    - [x] Shared class for page, article, index to inherit (not sure this is necessary unless more file types are added)
 * [ ] Configurability
     - [x] Add settings file
     - [x] Configurable things
