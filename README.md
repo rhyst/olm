@@ -98,18 +98,6 @@ Plugins can subscribe to signals to modify data during the build process. The pl
         └── mycoolplugin
             └── mycoolplugin.py
 
-
-### Current signals
-
-Signal Name             | String Value             | Description
----                     |---                       |---
-INITIALISED             | `INITIALISED`            | After settings and plugins loaded, before scanning files. Passes context as single argument.
-AFTER_ARTICLE_READ      | `AFTER_ARTICLE_READ`     | After each article has been read and been parsed by Mistune for content and metadata. Passes context and the article as arguments.
-AFTER_PAGE_READ         | `AFTER_PAGE_READ`        | After each page has been read and been parsed by Mistune for content and metadata. Passes context and the page as arguments.
-AFTER_ALL_ARTICLES_READ |`AFTER_ALL_ARTICLES_READ` | After all articles have been read and been parsed by Mistune for content and metadata. Passes context and the list of articles as arguments.
-BEFORE_WRITING          | `BEFORE_WRITING`         | After all content is scanned and parsed, before anything is written. Passes context and Writer class as arguments.
-BEFORE_ARTICLE_WRITE    | `BEFORE_ARTICLE_WRITE`   | Before each article is written. Passes context and article object as arguments.
-
 ## Subsites
 
 ### Structure
@@ -177,6 +165,18 @@ def register():
         ("ANOTHER_SIGNAL", mysecondcoolfunction)
     ]
 ```
+
+
+### Current signals
+
+Signal Name             | String Value             | Description
+---                     |---                       |---
+INITIALISED             | `INITIALISED`            | After settings and plugins loaded, before scanning files. Passes context as single argument.
+AFTER_ARTICLE_READ      | `AFTER_ARTICLE_READ`     | After each article has been read and been parsed by Mistune for content and metadata. Passes context and the article as arguments.
+AFTER_PAGE_READ         | `AFTER_PAGE_READ`        | After each page has been read and been parsed by Mistune for content and metadata. Passes context and the page as arguments.
+AFTER_ALL_ARTICLES_READ |`AFTER_ALL_ARTICLES_READ` | After all articles have been read and been parsed by Mistune for content and metadata. Passes context and the list of articles as arguments.
+BEFORE_WRITING          | `BEFORE_WRITING`         | After all content is scanned and parsed, before anything is written. Passes context and Writer class as arguments.
+BEFORE_ARTICLE_WRITE    | `BEFORE_ARTICLE_WRITE`   | Before each article is written. Passes context and article object as arguments.
 
 ## Acknowledgement
 
