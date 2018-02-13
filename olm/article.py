@@ -31,6 +31,7 @@ class Article:
 
         elif metadata is not None and content is not None and basename is not None:
             raw_content = content
+            self.basename = basename
         else:
             raise Exception('Article object not supplied with either filepath or content and metadata.') 
         
@@ -75,15 +76,22 @@ class Article:
             else:
                 output_filename = '{}-{}.html'.format(self.location.lower(), self.date.strftime('%Y-%m-%d'))
         else:
-            output_filename = '{}.html'.format(basename)
+            output_filename = '{}.html'.format(self.basename)
 
         self.output_filepath = os.path.join(context.OUTPUT_FOLDER, 'articles', output_filename)
         self.url             = 'articles/{}'.format(output_filename)
         self.context = context
+
+        self.cache_id = self.output_filepath
+        self.same_as_cache = False
+
         signal_sender = Signal(signals.AFTER_ARTICLE_READ)
         signal_sender.send(context=context, article=self)
 
     def write_file(self, context=None):
+        if self.same_as_cache:
+            #logger.debug('%s %s is same as cache. Not writing.', self.title, self.date)
+            return
         self.context = context if context is not None else self.context
         """Write the article to a file"""
         signal_sender = Signal(signals.BEFORE_ARTICLE_WRITE)

@@ -11,6 +11,7 @@ logger = get_logger('olm.context')
 def load_default_context(path):
     logger.info('Loading default context')
     BASE_FOLDER         = os.path.abspath(path)
+    CACHE_LOCATION      = os.path.abspath(os.path.join(BASE_FOLDER)) + os.sep + 'cache.pickle'
     SOURCE_FOLDER       = os.path.abspath(os.path.join(BASE_FOLDER, 'src'))
     STATIC_FOLDER       = os.path.abspath(os.path.join(BASE_FOLDER, 'theme', 'static'))
     CSS_FOLDER          = os.path.abspath(os.path.join(BASE_FOLDER, 'theme', 'static', 'css'))
@@ -32,6 +33,7 @@ def load_default_context(path):
 
     CONTEXT = Map({
         "BASE_FOLDER":          BASE_FOLDER,
+        "CACHE_LOCATION":       CACHE_LOCATION,
         "SOURCE_FOLDER":        SOURCE_FOLDER,
         "OUTPUT_FOLDER":        OUTPUT_FOLDER,
         "STATIC_FOLDER":        STATIC_FOLDER,
@@ -83,4 +85,5 @@ def load_context(CONTEXT, settings_file_path=None, settings=None):
             CONTEXT["JINJA_ENV"] = Environment(
                 loader=FileSystemLoader([CONTEXT[key]])
             )
+        
     return CONTEXT

@@ -14,9 +14,9 @@ logger = get_logger('olm')
 def main():
     parser = argparse.ArgumentParser(description='Olm static site generator',)
     parser.add_argument('src', action="store", help='Path to site folder')
-    parser.add_argument('-s', action="store", default=None, help='Path to settings.py file')
+    parser.add_argument('-s', '--settings', action="store", default=None, help='Path to settings.py file')
+    parser.add_argument('-d', '--disable-caching', action="store_true", help='Disable caching')
     args = parser.parse_args()
-
     if len(sys.argv) < 2:
         logger.warn("Olm requires the path to the site folder")
         logger.warn("\tolm ./path/to/my/site/")
@@ -27,9 +27,12 @@ def main():
     logger.notice("Beginning static site generation")
 
     CONTEXT = load_default_context(args.src)
+    CONTEXT.caching_enabled = True
+    if args.disable_caching:
+        CONTEXT.caching_enabled = False
 
-    if args.s is not None:
-        settings_file_path = os.path.abspath(args.s)
+    if args.settings is not None:
+        settings_file_path = os.path.abspath(args.settings)
     else:
         settings_file_path = os.path.abspath(os.path.join(args.src, 'settings.py'))
     if os.path.isfile(settings_file_path):
@@ -62,6 +65,7 @@ def main():
         subsite_context.OUTPUT_FOLDER = os.path.abspath(os.path.join(base_folder, 'dist', subsite_name))
         subsite_context.BASE_FOLDER = os.path.join(source_folder, subsite)
         subsite_context.SOURCE_FOLDER = os.path.join(source_folder, subsite)
+        subsite_context.CACHE_LOCATION = base_folder + os.sep + 'cache_' + subsite_name + '.pickle'
         site = Site(subsite_context)
         site.build_site()
 

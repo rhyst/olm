@@ -16,6 +16,7 @@ from olm.helper import Map
 from olm.writer import Writer
 from olm.signals import Signal, signals
 from olm.logger import get_logger
+from olm.cache import file_check
 
 logger = get_logger('olm.site')
 
@@ -77,6 +78,8 @@ class Site:
         CONTEXT['articles'].extend(sorted(articles, key=lambda k: (k.date), reverse=True))
         CONTEXT['pages'].extend(pages)
 
+        file_check(CONTEXT, CONTEXT['all_files'])
+
         signal_sender = Signal(signals.AFTER_ALL_ARTICLES_READ)
         signal_sender.send(context=CONTEXT, articles=CONTEXT.articles)
 
@@ -99,8 +102,11 @@ class Site:
 
         # Index
         logger.info("Writing articles index")
+        time_write_start = time.time()
         index = Index(CONTEXT)
         index.write_file()
+        logger.info("Wrote index in %.3f seconds", (time.time() - time_write_start))
+
 
         signal_sender = Signal(signals.AFTER_WRITING)
         signal_sender.send(context=CONTEXT, Writer=Writer)
