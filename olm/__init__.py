@@ -51,7 +51,8 @@ def main():
 
     subsites = site.subsites
 
-    base_folder = CONTEXT.BASE_FOLDER
+    base_folder   = CONTEXT.BASE_FOLDER
+    output_folder = CONTEXT.OUTPUT_FOLDER
     source_folder = CONTEXT.SOURCE_FOLDER
     for subsite in subsites:
         plugins.unload_plugins()
@@ -63,9 +64,9 @@ def main():
         else:
             subsite_context = CONTEXT
         plugins.load_plugins(subsite_context)
-        subsite_context.OUTPUT_FOLDER = os.path.abspath(os.path.join(base_folder, 'dist', subsite_name))
-        subsite_context.BASE_FOLDER = os.path.join(source_folder, subsite)
-        subsite_context.SOURCE_FOLDER = os.path.join(source_folder, subsite)
+        subsite_context.OUTPUT_FOLDER  = os.path.abspath(os.path.join(output_folder, subsite_name))
+        subsite_context.BASE_FOLDER    = os.path.join(source_folder, subsite)
+        subsite_context.SOURCE_FOLDER  = os.path.join(source_folder, subsite)
         subsite_context.CACHE_LOCATION = base_folder + os.sep + 'cache_' + subsite_name + '.pickle'
         site = Site(subsite_context)
         site.build_site()
