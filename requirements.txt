@@ -1,7 +1,6 @@
 argh==0.26.2
 blinker==1.4
 coloredlogs==9.0
-dlib==19.9.0
 humanfriendly==4.8
 Jinja2==2.10
 jsmin==2.2.2
@@ -9,6 +8,5 @@ libsass==0.13.6
 MarkupSafe==1.0
 mistune==0.8.3
 pathtools==0.1.2
-pyhash==0.8.2
 PyYAML==3.12
 six==1.11.0
