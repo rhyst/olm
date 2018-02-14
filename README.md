@@ -2,7 +2,7 @@
 
 An olm is a cave dwelling amphibian that I imagine is fairly static. Olm the application is a static site generator with a focus on simplicity, speed, and extensibility.
 
-## Features
+## Features
 
 * Super fast markdown parsing with Mistune
 * Easy plugin system based on Blinker signals
