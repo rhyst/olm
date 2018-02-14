@@ -7,6 +7,7 @@ from olm.constants import CacheTypes, ArticleStatus
 from collections import namedtuple
 
 logger = get_logger('olm.cache')
+comparison = namedtuple('comparison', ['added', 'removed', 'modified'])
 
 def dict_compare(d1, d2):
     d1_keys = set(d1.keys())
@@ -22,8 +23,7 @@ def dict_compare(d1, d2):
         added[key] = d1[key]
     for key in removed_keys:
         removed[key] = d2[key]
-    comparison = namedtuple('comparison', ['added', 'removed', 'modified'])
-    return comparison(added, removed, modified)
+    return comparison(added=added, removed=removed, modified=modified)
 
 def hash_object(thing):
     m = hashlib.md5()
@@ -40,6 +40,8 @@ def add_change(afile, change_list, file_type, change_type):
 
 def check_cache(CONTEXT, files):
     time_start = time.time()
+    CONTEXT['cache_change_types'] = []
+    CONTEXT['cache_changed_meta'] = []
     if not CONTEXT.caching_enabled:
         logger.info('Caching disabled')
         return
@@ -55,6 +57,7 @@ def check_cache(CONTEXT, files):
     hashes       = {} # New hashes to be saved to cache file
     changes      = [] # List of change types
     meta_changes = [] # List of all changed metadata
+    no_of_files  = 0
     for afile in files:
         if 'cache_id' not in dir(afile):
             continue
@@ -77,23 +80,27 @@ def check_cache(CONTEXT, files):
             # If difference is in metadata compile a diff object for the metadata
             # and store it along with a meta change
             if old_hashes[id_hash][0] != meta_hash:
-                logger.info('{} metadata is different to cache'.format(identifier))
+                logger.debug('{} metadata is different to cache'.format(identifier))
                 if afile.status != ArticleStatus.DRAFT and afile.status:
                     diff = dict_compare(old_hashes[id_hash][2], afile.metadata)
                     meta_changes.append(diff)
                 changes = add_change(afile, changes, afile.cache_type, CacheTypes.META_CHANGE)
+                no_of_files = no_of_files + 1
             # If difference in content then just add a content change
             if old_hashes[id_hash][1] != content_hash:
-                logger.info('{} content is different to cache'.format(identifier))
+                logger.debug('{} content is different to cache'.format(identifier))
                 changes = add_change(afile, changes, afile.cache_type, CacheTypes.CONTENT_CHANGE)
+                no_of_files = no_of_files + 1
             # If same mark the file as same_as_cache so it doesnt get written
             if old_hashes[id_hash][0] == meta_hash and old_hashes[id_hash][1] == content_hash:
                 afile.same_as_cache = True
         else:
-            logger.info('{} is a new file'.format(identifier))
+            logger.debug('{} is a new file'.format(identifier))
             changes = add_change(afile, changes, afile.cache_type, CacheTypes.NEW_FILE)
-            meta_changes.append(afile.metadata)
+            meta_changes.append(comparison(added=afile.metadata, removed={}, modified={}))
+            no_of_files = no_of_files + 1
 
+    logger.info('{} files are new or changed'.format(no_of_files))
     logger.debug('{} are the new changes'.format(changes))
     CONTEXT['cache_change_types'] = changes
     CONTEXT['cache_changed_meta'] = meta_changes
