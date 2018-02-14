@@ -1,3 +1,4 @@
+import time
 from blinker import signal
 from olm.helper import Map
 from olm.logger import get_logger
@@ -8,6 +9,7 @@ signals = Map({
     'INITIALISED':              "INITIALISED",             # args: context
     'SITE_INITIALISED':         "SITE_INITIALISED",        # args: context
     "BEFORE_MD_CONVERT":        "BEFORE_MD_CONVERT",       # args: context, content      
+    'BEFORE_CACHING':           "BEFORE_CACHING",          # args: context, articles
     'AFTER_ARTICLE_READ':       "AFTER_ARTICLE_READ",      # args: context, article
     'AFTER_PAGE_READ':          "AFTER_PAGE_READ",         # args: context, article
     'AFTER_ALL_ARTICLES_READ':  "AFTER_ALL_ARTICLES_READ", # args: context, articles
@@ -26,6 +28,8 @@ class Signal:
         self.sender = signal(signal_value)
 
     def send(self, **kwargs):
+        time_start = time.time()
         logger.debug('Sending signal "%s"', self.signal_value)
         self.sender.send(self.signal_value, **kwargs)
+        logger.debug('Ran signal "%s" in %.3f seconds', self.signal_value, (time.time() - time_start))
 

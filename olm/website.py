@@ -78,8 +78,11 @@ class Site:
         CONTEXT['articles'].extend(sorted(articles, key=lambda k: (k.date), reverse=True))
         CONTEXT['pages'].extend(pages)
 
-        check_cache(CONTEXT, CONTEXT['all_files'])
+        signal_sender = Signal(signals.BEFORE_CACHING)
+        signal_sender.send(context=CONTEXT, articles=CONTEXT.articles)
 
+        check_cache(CONTEXT, CONTEXT['all_files'])
+        
         signal_sender = Signal(signals.AFTER_ALL_ARTICLES_READ)
         signal_sender.send(context=CONTEXT, articles=CONTEXT.articles)
 
@@ -106,7 +109,6 @@ class Site:
         index = Index(CONTEXT)
         index.write_file()
         logger.info("Wrote index in %.3f seconds", (time.time() - time_write_start))
-
 
         signal_sender = Signal(signals.AFTER_WRITING)
         signal_sender.send(context=CONTEXT, Writer=Writer)
