@@ -33,3 +33,6 @@
         * [x] Source and build folders
         * [x] Statics folders
         * [ ] Statics processing options
+* [ ] Caching
+    - [ ] Customise article and page decaching triggers
+
