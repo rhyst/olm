@@ -57,7 +57,7 @@ class Article(Source):
             else:
                 output_filename = '{}-{}.html'.format(self.location.lower(), self.date.strftime('%Y-%m-%d'))
         else:
-            output_filename = '{}.html'.format(self.basename)
+            output_filename = '{}.html'.format(self.basename)   
         self.output_filepath = os.path.join(context.OUTPUT_FOLDER, 'articles', output_filename)
         self.url             = 'articles/{}'.format(output_filename)
 
@@ -68,4 +68,14 @@ class Article(Source):
         signal_sender.send(context=context, article=self)
 
     def write_file(self, context=None):
+        self.context = context if context is not None else self.context
+        changes      = self.context['cache_change_types']
+        changed_meta = self.context['cache_changed_meta']
+        if "ARTICLE.NEW_FILE" in changes:
+            self.same_as_cache = False
+        for added, removed, modified in changed_meta:
+            for key in self.context['ARTICLE_REFRESH_META']:
+                if key in added or key in removed or key in modified:
+                    self.same_as_cache = False
         super().write_file(context, article=self)
+        return not self.same_as_cache

@@ -10,26 +10,28 @@ logger = get_logger('olm.context')
 
 def load_default_context(path):
     logger.info('Loading default context')
-    BASE_FOLDER         = os.path.abspath(path)
-    CACHE_LOCATION      = os.path.abspath(os.path.join(BASE_FOLDER)) + os.sep + 'cache.pickle'
-    SOURCE_FOLDER       = os.path.abspath(os.path.join(BASE_FOLDER, 'src'))
-    STATIC_FOLDER       = os.path.abspath(os.path.join(BASE_FOLDER, 'theme', 'static'))
-    CSS_FOLDER          = os.path.abspath(os.path.join(BASE_FOLDER, 'theme', 'static', 'css'))
-    JS_FOLDER           = os.path.abspath(os.path.join(BASE_FOLDER, 'theme', 'static', 'js'))
-    TEMPLATES_FOLDER    = os.path.abspath(os.path.join(BASE_FOLDER, 'theme', 'templates'))
-    PLUGINS_FOLDER      = os.path.abspath(os.path.join(BASE_FOLDER, 'plugins',))
-    MD                  = mistune.Markdown()
-    JINJA_ENV           = Environment(
+    BASE_FOLDER          = os.path.abspath(path)
+    CACHE_LOCATION       = os.path.abspath(os.path.join(BASE_FOLDER)) + os.sep + 'cache.pickle'
+    SOURCE_FOLDER        = os.path.abspath(os.path.join(BASE_FOLDER, 'src'))
+    STATIC_FOLDER        = os.path.abspath(os.path.join(BASE_FOLDER, 'theme', 'static'))
+    CSS_FOLDER           = os.path.abspath(os.path.join(BASE_FOLDER, 'theme', 'static', 'css'))
+    JS_FOLDER            = os.path.abspath(os.path.join(BASE_FOLDER, 'theme', 'static', 'js'))
+    TEMPLATES_FOLDER     = os.path.abspath(os.path.join(BASE_FOLDER, 'theme', 'templates'))
+    PLUGINS_FOLDER       = os.path.abspath(os.path.join(BASE_FOLDER, 'plugins',))
+    MD                   = mistune.Markdown()
+    JINJA_ENV            = Environment(
                             loader=FileSystemLoader([TEMPLATES_FOLDER])
                             )
-    ARTICLE_TYPES       = ['article']
-    INDEX_TYPES         = ['index']
-    PLUGINS             = []
-    SITEURL             = ""
-    OUTPUT_FOLDER       = os.path.abspath(os.path.join(BASE_FOLDER, 'dist'))
-    OUTPUT_CSS_FOLDER   = os.path.abspath(os.path.join(OUTPUT_FOLDER, 'theme', 'css'))
-    OUTPUT_JS_FOLDER    = os.path.abspath(os.path.join(OUTPUT_FOLDER, 'theme', 'js'))
-    NO_SCAN             = []
+    ARTICLE_TYPES        = ['article']
+    INDEX_TYPES          = ['index']
+    PLUGINS              = []
+    SITEURL              = ""
+    OUTPUT_FOLDER        = os.path.abspath(os.path.join(BASE_FOLDER, 'dist'))
+    OUTPUT_CSS_FOLDER    = os.path.abspath(os.path.join(OUTPUT_FOLDER, 'theme', 'css'))
+    OUTPUT_JS_FOLDER     = os.path.abspath(os.path.join(OUTPUT_FOLDER, 'theme', 'js'))
+    NO_SCAN              = []
+    ARTICLE_REFRESH_META = []
+    PAGE_REFRESH_META    = []
 
     CONTEXT = Map({
         "BASE_FOLDER":          BASE_FOLDER,
@@ -49,7 +51,9 @@ def load_default_context(path):
         "SUBSITES":             {},
         "OUTPUT_CSS_FOLDER":    OUTPUT_CSS_FOLDER,
         "OUTPUT_JS_FOLDER":     OUTPUT_JS_FOLDER,
-        "NO_SCAN":              NO_SCAN
+        "NO_SCAN":              NO_SCAN,
+        "ARTICLE_REFRESH_META": ARTICLE_REFRESH_META,
+        "PAGE_REFRESH_META":    PAGE_REFRESH_META
     })
 
     return CONTEXT
