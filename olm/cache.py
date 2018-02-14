@@ -1,8 +1,9 @@
 import pickle
 import time
 import os
-from olm.logger import get_logger
 import hashlib
+from olm.logger import get_logger
+from olm.constants import CacheTypes
 
 logger = get_logger('olm.cache')
 
@@ -17,13 +18,13 @@ def check_cache(CONTEXT, files):
     if not CONTEXT.caching_enabled:
         logger.info('Caching disabled')
         return
-    try:
+
+    old_hashes = {}
+    CONTEXT['is_cached'] = False
+    if os.path.isfile(CONTEXT.CACHE_LOCATION):
         with open(CONTEXT.CACHE_LOCATION, 'rb') as handle:
             old_hashes = pickle.load(handle)
             CONTEXT['is_cached'] = True
-    except FileNotFoundError:
-        CONTEXT['is_cached'] = False
-        old_hashes = {}
 
     hashes = {}
     changes = []
@@ -42,18 +43,18 @@ def check_cache(CONTEXT, files):
             if id_hash in old_hashes:
                 if old_hashes[id_hash][0] != meta_hash:
                     logger.info('{} metadata is different to cache'.format(identifier))
-                    change = '{}.{}'.format(afile.cache_type, "META_CHANGE")
+                    change = '{}.{}'.format(afile.cache_type, CacheTypes.META_CHANGE)
                     if change not in changes:
                         changes.append(change)
                 if old_hashes[id_hash][1] != content_hash:
                     logger.info('{} content is different to cache'.format(identifier))
-                    change = '{}.{}'.format(afile.cache_type, "CONTENT_CHANGE")
+                    change = '{}.{}'.format(afile.cache_type, CacheTypes.CONTENT_CHANGE)
                     if change not in changes:
                         changes.append(change)
                 if old_hashes[id_hash][0] == meta_hash and old_hashes[id_hash][1] == content_hash:
                     afile.same_as_cache = True
             else:
-                change = '{}.{}'.format(afile.cache_type, "NEW_FILE")
+                change = '{}.{}'.format(afile.cache_type, CacheTypes.NEW_FILE)
                 logger.info('{} is a new file'.format(identifier))
                 if change not in changes:
                     changes.append(change)

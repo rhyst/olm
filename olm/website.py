@@ -74,6 +74,14 @@ class Site:
                         all_files.append(article)
         logger.info("Processed %d articles, %d unlisted articles, %d drafts, and %d pages in %.3f seconds", len(articles), len(unlisted_articles), len(draft_articles), len(pages), time.time() - time_source_start)            
 
+        outputs = []
+        for a in articles:
+            if a.output_filepath not in outputs:
+                outputs.append(a.output_filepath)
+            else: 
+                dupes = [ b for b in articles if b.output_filepath == a.output_filepath ]
+                logger.error("'%s' has the same output file path as '%s'. The other article will be overwritten.", a.source_filepath, dupes[0].source_filepath)
+
         CONTEXT['all_files'].extend(all_files)
         CONTEXT['articles'].extend(sorted(articles, key=lambda k: (k.date), reverse=True))
         CONTEXT['pages'].extend(pages)
