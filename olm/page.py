@@ -18,6 +18,7 @@ class Page(Source):
         self.output_filepath = join(context.OUTPUT_FOLDER, self.relpath)
 
         self.cache_id = self.output_filepath
+        self.cache_type = 'PAGE'
 
         signal_sender = Signal(signals.AFTER_PAGE_READ)
         signal_sender.send(context=context, page=self)

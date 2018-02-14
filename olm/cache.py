@@ -26,6 +26,7 @@ def check_cache(CONTEXT, files):
         old_hashes = {}
 
     hashes = {}
+    changes = []
     for afile in files:
         if 'cache_id' in dir(afile):
             m = hashlib.md5()
@@ -34,16 +35,30 @@ def check_cache(CONTEXT, files):
             content_hash = hash_object(afile.content)
             hashes[id_hash] = (meta_hash, content_hash)
 
+            if afile.output_filepath is None:
+                identifier = afile.basename
+            else:
+                identifier = afile.output_filepath
             if id_hash in old_hashes:
                 if old_hashes[id_hash][0] != meta_hash:
-                    logger.info('{} metadata is different to cache'.format(afile.output_filepath))
+                    logger.info('{} metadata is different to cache'.format(identifier))
+                    change = '{}.{}'.format(afile.cache_type, "META_CHANGE")
+                    if change not in changes:
+                        changes.append(change)
                 if old_hashes[id_hash][1] != content_hash:
-                    logger.info('{} content is different to cache'.format(afile.output_filepath))
+                    logger.info('{} content is different to cache'.format(identifier))
+                    change = '{}.{}'.format(afile.cache_type, "CONTENT_CHANGE")
+                    if change not in changes:
+                        changes.append(change)
                 if old_hashes[id_hash][0] == meta_hash and old_hashes[id_hash][1] == content_hash:
                     afile.same_as_cache = True
             else:
-                pass
-                # new file
+                change = '{}.{}'.format(afile.cache_type, "NEW_FILE")
+                logger.info('{} is a new file'.format(identifier))
+                if change not in changes:
+                    changes.append(change)
+
+    CONTEXT['cache_change_types'] = changes
 
     with open(CONTEXT.CACHE_LOCATION, 'wb') as handle:
         pickle.dump(hashes, handle, protocol=pickle.HIGHEST_PROTOCOL)

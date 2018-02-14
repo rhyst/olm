@@ -24,6 +24,7 @@ class Source:
         elif metadata is not None and content is not None and basename is not None:
             raw_content = content
             self.basename = basename
+            self.source_filepath = None
             self.dirname  = None
             self.basepath = None
             self.relpath  = None
@@ -41,6 +42,7 @@ class Source:
         self.template = None
         self.output_filepath = None
         self.same_as_cache = False
+        self.cache_type = 'SOURCE'
 
     def write_file(self, context=None, **kwargs):
         if self.same_as_cache:

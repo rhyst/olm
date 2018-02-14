@@ -62,6 +62,7 @@ class Article(Source):
         self.url             = 'articles/{}'.format(output_filename)
 
         self.cache_id = self.output_filepath
+        self.cache_type = 'ARTICLE'
 
         signal_sender = Signal(signals.AFTER_ARTICLE_READ)
         signal_sender.send(context=context, article=self)
