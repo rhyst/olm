@@ -56,6 +56,7 @@ def main():
     for subsite in subsites:
         plugins.unload_plugins()
         subsite_name = subsite[1:]
+        logger.info("")
         logger.info("Found subsite '%s'", subsite_name)
         if subsite_name in CONTEXT.SUBSITES:
             subsite_context = load_context(CONTEXT, settings=CONTEXT.SUBSITES[subsite_name])

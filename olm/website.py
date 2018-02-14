@@ -97,14 +97,16 @@ class Site:
         signal_sender = Signal(signals.BEFORE_WRITING)
         signal_sender.send(context=CONTEXT, Writer=Writer)
 
-        logger.info("Writing %d articles", len(CONTEXT.articles))
+        logger.debug("Writing %d articles", len(CONTEXT.articles))
         time_write_start = time.time()
+        number_written = 0
         for index, article in enumerate(CONTEXT.articles):
             logger.debug("Writing file %d of %d", index + 1, len(CONTEXT.articles))
-            article.write_file(context=CONTEXT)
-        logger.info("Wrote %d articles in %.3f seconds", len(CONTEXT.articles), (time.time() - time_write_start))
+            wrote = article.write_file(context=CONTEXT)
+            number_written = number_written + 1 if wrote else number_written
+        logger.info("Wrote %d changed articles out of %d articles in %.3f seconds", number_written, len(CONTEXT.articles), (time.time() - time_write_start))
 
-        logger.info("Writing %d pages", len(pages))
+        logger.debug("Writing %d pages", len(pages))
         time_write_start = time.time()
         for index, page in enumerate(pages):
             logger.debug("Writing file %d of %d", index + 1, len(pages))
@@ -112,17 +114,20 @@ class Site:
         logger.info("Wrote %d pages in %.3f seconds", len(pages), (time.time() - time_write_start))
 
         # Index
-        logger.info("Writing articles index")
+        logger.debug("Writing articles index")
         time_write_start = time.time()
         index = Index(CONTEXT)
-        index.write_file()
-        logger.info("Wrote index in %.3f seconds", (time.time() - time_write_start))
+        wrote = index.write_file()
+        if wrote:
+            logger.info("Wrote index in %.3f seconds", (time.time() - time_write_start))
+        else:
+            logger.info("Reused cached index in %.3f seconds", (time.time() - time_write_start))
 
         signal_sender = Signal(signals.AFTER_WRITING)
         signal_sender.send(context=CONTEXT, Writer=Writer)
 
         # Static files
-        logger.info("Compiling static files")
+        logger.debug("Compiling static files")
         time_static_start = time.time()
         sass.compile(dirname=(CONTEXT.CSS_FOLDER, CONTEXT.OUTPUT_CSS_FOLDER), output_style='compressed')
         for dirname, dirs, files in os.walk(CONTEXT.CSS_FOLDER):

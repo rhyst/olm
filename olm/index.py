@@ -36,7 +36,7 @@ class Index:
     def write_file(self):
         changes = self.context['cache_change_types']
         if "ARTICLE.NEW_FILE" not in changes and "ARTICLE.META_CHANGE" not in changes:
-            return
+            return False
         """Write the article to a file"""
         dirname = os.path.dirname(self.output_filepath)
         for i, page in enumerate(self.pages):
@@ -58,3 +58,4 @@ class Index:
                 previous_page=previous_page,
                 next_page=next_page)
             writer.write_file()
+        return True

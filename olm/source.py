@@ -38,7 +38,7 @@ class Source:
 
         self.content = context.MD(raw_content)
         self.metadata = metadata
-
+        self.status = None
         self.template = None
         self.output_filepath = None
         self.same_as_cache = False
