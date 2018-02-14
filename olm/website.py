@@ -16,7 +16,7 @@ from olm.helper import Map
 from olm.writer import Writer
 from olm.signals import Signal, signals
 from olm.logger import get_logger
-from olm.cache import file_check
+from olm.cache import check_cache
 
 logger = get_logger('olm.site')
 
@@ -78,7 +78,7 @@ class Site:
         CONTEXT['articles'].extend(sorted(articles, key=lambda k: (k.date), reverse=True))
         CONTEXT['pages'].extend(pages)
 
-        file_check(CONTEXT, CONTEXT['all_files'])
+        check_cache(CONTEXT, CONTEXT['all_files'])
 
         signal_sender = Signal(signals.AFTER_ALL_ARTICLES_READ)
         signal_sender.send(context=CONTEXT, articles=CONTEXT.articles)
