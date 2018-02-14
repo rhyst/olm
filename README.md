@@ -1,16 +1,32 @@
 # Olm
 
-An olm is a cave dwelling amphibian that I imagine is fairly static. This is a fast, featureful, static site generator.
+An olm is a cave dwelling amphibian that I imagine is fairly static. Olm the application is a static site generator with a focus on simplicity, speed, and extensibility.
+
+## Features
+
+* Super fast markdown parsing with Mistune
+* Easy plugin system based on Blinker signals
+* Clever and extensible caching so building is speedy
 
 ## Install
 
-Run the provided install script:
+Install via pip:
+
+    pip install olm
+    
+Or run the provided install script:
 
     ./install
 
 It will install the requirements in a virtualenv.
 
 ## Run
+
+If you installed via pip you can run:
+
+    olm [ -s path/to/settings.py] [-d] path/to/site
+
+The `-s` flag allows you to specifiy a different settings file (default is `settings.py` in your site directory). The `-d` flag disables caching so the site is completely regenerated.
 
 Run the provided build script, providing the base folder of your site:
 
@@ -177,6 +193,8 @@ AFTER_PAGE_READ         | `AFTER_PAGE_READ`        | After each page has been re
 AFTER_ALL_ARTICLES_READ |`AFTER_ALL_ARTICLES_READ` | After all articles have been read and been parsed by Mistune for content and metadata. Passes context and the list of articles as arguments.
 BEFORE_WRITING          | `BEFORE_WRITING`         | After all content is scanned and parsed, before anything is written. Passes context and Writer class as arguments.
 BEFORE_ARTICLE_WRITE    | `BEFORE_ARTICLE_WRITE`   | Before each article is written. Passes context and article object as arguments.
+
+### Caching for plugins
 
 ## Acknowledgement
 
