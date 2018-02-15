@@ -3,28 +3,30 @@ import os
 import time
 import argparse
 
+parser = argparse.ArgumentParser(description='Olm static site generator',)
+parser.add_argument('src', action="store", help='Path to site folder')
+parser.add_argument('-s', '--settings', action="store", default=None, help='Path to settings.py file')
+parser.add_argument('-d', '--disable-caching', action="store_true", help='Disable caching')
+parser.add_argument('-l', '--log-level', action="store", default="NOTICE", help='Set log level')
+args = parser.parse_args()
+
+from olm.logger import get_logger, set_log_level
+set_log_level(args.log_level)
+
+# Imports here in order to get correct log level
 from olm.context import load_context, load_default_context
 from olm.plugins import Plugins
 from olm.signals import Signal, signals
-from olm.logger import get_logger
 from olm.website import Site
 
 logger = get_logger('olm')
 
 def main():
-    parser = argparse.ArgumentParser(description='Olm static site generator',)
-    parser.add_argument('src', action="store", help='Path to site folder')
-    parser.add_argument('-s', '--settings', action="store", default=None, help='Path to settings.py file')
-    parser.add_argument('-d', '--disable-caching', action="store_true", help='Disable caching')
-    args = parser.parse_args()
-    if len(sys.argv) < 2:
-        logger.warn("Olm requires the path to the site folder")
-        logger.warn("\tolm ./path/to/my/site/")
-        return
-
-    time_all = time.time()
     """Main olm function"""
+    time_all = time.time()
     logger.notice("Beginning static site generation")
+
+    set_log_level(args.log_level)
 
     CONTEXT = load_default_context(args.src)
     CONTEXT.caching_enabled = True
