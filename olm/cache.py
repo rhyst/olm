@@ -31,10 +31,10 @@ def hash_object(thing):
     m.update(string)
     return m.hexdigest()
 
-def add_change(afile, change_list, file_type, change_type):
+def add_change(file_status, change_list, file_type, change_type):
     change = '{}.{}'.format(file_type, change_type)
     if change not in change_list:
-        if afile.status != ArticleStatus.DRAFT:
+        if file_status != ArticleStatus.DRAFT:
             change_list.append(change)
     return change_list
 
@@ -66,7 +66,7 @@ def check_cache(CONTEXT, files):
         id_hash         = hash_object(afile.cache_id)
         meta_hash       = hash_object(afile.metadata)
         content_hash    = hash_object(afile.content)
-        hashes[id_hash] = (meta_hash, content_hash, afile.metadata)
+        hashes[id_hash] = (meta_hash, content_hash, afile.metadata, afile.cache_type)
 
         # Figure out an identifier for logging
         if afile.output_filepath is None:
@@ -84,22 +84,29 @@ def check_cache(CONTEXT, files):
                 if afile.status != ArticleStatus.DRAFT and afile.status:
                     diff = dict_compare(old_hashes[id_hash][2], afile.metadata)
                     meta_changes.append(diff)
-                changes = add_change(afile, changes, afile.cache_type, CacheTypes.META_CHANGE)
+                changes = add_change(afile.status, changes, afile.cache_type, CacheTypes.META_CHANGE)
                 no_of_files = no_of_files + 1
             # If difference in content then just add a content change
             if old_hashes[id_hash][1] != content_hash:
                 logger.debug('{} content is different to cache'.format(identifier))
-                changes = add_change(afile, changes, afile.cache_type, CacheTypes.CONTENT_CHANGE)
+                changes = add_change(afile.status, changes, afile.cache_type, CacheTypes.CONTENT_CHANGE)
                 no_of_files = no_of_files + 1
             # If same mark the file as same_as_cache so it doesnt get written
             if old_hashes[id_hash][0] == meta_hash and old_hashes[id_hash][1] == content_hash:
                 afile.same_as_cache = True
         else:
             logger.debug('{} is a new file'.format(identifier))
-            changes = add_change(afile, changes, afile.cache_type, CacheTypes.NEW_FILE)
+            changes = add_change(afile.status, changes, afile.cache_type, CacheTypes.NEW_FILE)
             meta_changes.append(comparison(added=afile.metadata, removed={}, modified={}))
             no_of_files = no_of_files + 1
 
+    removed = list(set(old_hashes.keys()) - set(hashes.keys()))
+    for r in removed:
+        changes = add_change(None, changes, old_hashes[r][3], CacheTypes.REMOVED_FILE)
+        meta_changes.append(comparison(added={}, removed=old_hashes[r][2], modified={}))
+
+    for r in removed:
+        print(old_hashes[r])
     logger.info('{} files are new or changed'.format(no_of_files))
     logger.debug('{} are the new changes'.format(changes))
     CONTEXT['cache_change_types'] = changes
