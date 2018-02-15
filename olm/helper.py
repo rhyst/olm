@@ -1,6 +1,9 @@
-def merge_dictionaries(x, y):
-    z = x.copy()
-    z.update(y)
+def merge_dictionaries(*args):
+    if len(args) < 1:
+        return {}
+    z = args[0].copy()
+    for a in args[1:]:
+        z.update(a)
     return z
 
 class Map(dict):
