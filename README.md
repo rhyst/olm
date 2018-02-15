@@ -13,7 +13,7 @@ An olm is a cave dwelling amphibian that I imagine is fairly static. Olm the app
 Install via pip:
 
     pip install olm
-    
+
 Or run the provided install script:
 
     ./install
@@ -24,13 +24,13 @@ It will install the requirements in a virtualenv.
 
 If you installed via pip you can run:
 
-    olm [ -s path/to/settings.py] [-d] path/to/site
+    olm path/to/site
+Options are:
 
-The `-s` flag allows you to specifiy a different settings file (default is `settings.py` in your site directory). The `-d` flag disables caching so the site is completely regenerated.
+* `-s` or `--settings`:  Specify a different settings file. Default is `./settings.py`.
+* `-d` or `—disable-cache`:  Disables caching so the site is completely regenerated.
+* `-l` or `—log-level`: Set the log level. Can be `DEBUG`, `INFO`, `NOTICE`, `WARNING`, `ERROR`, or `CRITICAL`. Default is `INFO`.
 
-Run the provided build script, providing the base folder of your site:
-
-    ./build ../path/to/site
 
 ## Content
 
@@ -57,24 +57,30 @@ The output html will be placed in the `dist` directory, with articles going into
 
 Below is a list of the settings you can change for your site. Each setting string value can use Jinja style variable replacements to use any setting variables that were defined before it. 
 
-Setting            | Default Value                       | Description
----                | ---                                 | ---
-`BASE_FOLDER`      | `sys.argv[1]`                       | The root of the site folder.
-`SOURCE_FOLDER`    | `{{BASE_FOLDER}}\src`               | The source folder for all markdown files.
-`STATIC_FOLDER`    | `{{BASE_FOLDER}}\theme\static`      | The folder containing css and js.
-`TEMPLATES_FOLDER` | `{{BASE_FOLDER}}\theme\templates`   | The folder containing the Jinja templates.
-`CSS_FOLDER`       | `{{BASE_FOLDER\theme\static\css}}`  | The folder containing the css files
-`JS_FOLDER`        | `{{BASE_FOLDER\theme\static\js}}`   | The folder containing the js files
-`PLUGINS_FOLDER`   | `{{BASE_FOLDER}}\plugins`           | The folder containing the plugins.
-`ARTICLE_TYPES`    | `['article']`                       | The `type` metadata of files that will be included as articles.
-`INDEX_TYPES`      | `['index']`                         | The `type` metadata of files that will be included on the index.
-`PLUGINS`          | `[]`                                | List of plugins.
-`SITEURL`          | `''`                                | The base url of the site.
-`OUTPUT_FOLDER`    | `{{BASE_FOLDER}}\dist`              | The output folder for compiled html and static files.
-`OUTPUT_CSS_FOLDER`| `{{OUTPUT_FOLDER}}\theme\css`       | The output folder for compiled css.
-`OUTPUT_JS_FOLDER` | `{{OUTPUT_FOLDER}}\theme\js`        | The output folder for compiled js.
-`SUBSITES`         | `{}`                                | See subsite section.
-`ARTICLE_SLUG`     | `'{location}-{date}.html'`          | The format of article filenames. The curly brace vars can be any Article attribute.
+| Setting                | Default Value                      | Description                              |
+| ---------------------- | ---------------------------------- | ---------------------------------------- |
+| `BASE_FOLDER`          | `sys.argv[1]`                      | The root of the site folder.             |
+| `SOURCE_FOLDER`        | `{{BASE_FOLDER}}\src`              | The source folder for all markdown files. |
+| `STATIC_FOLDER`        | `{{BASE_FOLDER}}\theme\static`     | The folder containing css and js.        |
+| `TEMPLATES_FOLDER`     | `{{BASE_FOLDER}}\theme\templates`  | The folder containing the Jinja templates. |
+| `CSS_FOLDER`           | `{{BASE_FOLDER\theme\static\css}}` | The folder containing the css files      |
+| `JS_FOLDER`            | `{{BASE_FOLDER\theme\static\js}}`  | The folder containing the js files       |
+| `PLUGINS_FOLDER`       | `{{BASE_FOLDER}}\plugins`          | The folder containing the plugins.       |
+| `ARTICLE_TYPES`        | `['article']`                      | The `type` metadata of files that will be included as articles. |
+| `INDEX_TYPES`          | `['index']`                        | The `type` metadata of files that will be included on the index. |
+| `PLUGINS`              | `[]`                               | List of plugins.                         |
+| `SITEURL`              | `''`                               | The base url of the site.                |
+| `OUTPUT_FOLDER`        | `{{BASE_FOLDER}}\dist`             | The output folder for compiled html and static files. |
+| `OUTPUT_CSS_FOLDER`    | `{{OUTPUT_FOLDER}}\theme\css`      | The output folder for compiled css.      |
+| `OUTPUT_JS_FOLDER`     | `{{OUTPUT_FOLDER}}\theme\js`       | The output folder for compiled js.       |
+| `SUBSITES`             | `{}`                               | See subsite section.                     |
+| `ARTICLE_SLUG`         | `'{location}-{date}.html'`         | The format of article filenames. The curly brace vars can be any Article attribute. |
+| `ARTICLE_REFRESH`      | []                                 | List of cache types that trigger articles to rebuild |
+| `ARTICLE_REFRESH_META` | []                                 | List of metadata keys that trigger articles to rebuild when changed |
+| `PAGE_REFRESH`         | []                                 | List of cache types that trigger pages to rebuild |
+| `PAGE_REFRESH_META`    | []                                 | List of metadata keys that trigger pages to rebuild when changed |
+| `INDEX_REFRESH`        | []                                 | List of cache types that trigger the index to rebuild |
+| `INDEX_REFRESH_META`   | []                                 | List of metadata keys that trigger the index to rebuild when changed |
 
 ## Themes
 
@@ -154,6 +160,14 @@ settings in the subsite settings e.g.
 By default the subsite will use the same set of plugins as the main site. You can set the "PLUGINS" setting in the subsite settings to a different list of plugins. 
 Being able to specify a different plugin path is a TODO.
 
+### Caching
+
+Olm will try to avoid rewriting files that do not need to be changed. Writing files is slow, so this helps keep the build times to a minimum. The first time it runs it will generate a cache file. On subsequent runs it will compare files to their cached versions as it reads them. If they are the same then they will not be rewritten. The cache file is update on each run.
+
+When Olm detects that a file has changed it adds it to a list of change types. This consists of a 'file type'
+
+However this means that if you have an index page listing all of the articles and a summary of their content then it will not update when you add a new article, or change an article's summary. If you would like it to update then you need to set the `INDEX_REFRESH` setting in the settings. 
+
 ## Writing plugins
 
 Within the plugin file should be the function with your code and a `register` function which should return a list of tuples with the signal you want to subscribe to and the function that should run. All functions will receive two parameters; `sender` at the moment is just a string with the signal value, and `logger` is a logging function that will let you log within your plugin. All parameters are named so the order doesn't matter.
@@ -185,14 +199,14 @@ def register():
 
 ### Current signals
 
-Signal Name             | String Value             | Description
----                     |---                       |---
-INITIALISED             | `INITIALISED`            | After settings and plugins loaded, before scanning files. Passes context as single argument.
-AFTER_ARTICLE_READ      | `AFTER_ARTICLE_READ`     | After each article has been read and been parsed by Mistune for content and metadata. Passes context and the article as arguments.
-AFTER_PAGE_READ         | `AFTER_PAGE_READ`        | After each page has been read and been parsed by Mistune for content and metadata. Passes context and the page as arguments.
-AFTER_ALL_ARTICLES_READ |`AFTER_ALL_ARTICLES_READ` | After all articles have been read and been parsed by Mistune for content and metadata. Passes context and the list of articles as arguments.
-BEFORE_WRITING          | `BEFORE_WRITING`         | After all content is scanned and parsed, before anything is written. Passes context and Writer class as arguments.
-BEFORE_ARTICLE_WRITE    | `BEFORE_ARTICLE_WRITE`   | Before each article is written. Passes context and article object as arguments.
+| Signal Name             | String Value              | Description                              |
+| ----------------------- | ------------------------- | ---------------------------------------- |
+| INITIALISED             | `INITIALISED`             | After settings and plugins loaded, before scanning files. Passes context as single argument. |
+| AFTER_ARTICLE_READ      | `AFTER_ARTICLE_READ`      | After each article has been read and been parsed by Mistune for content and metadata. Passes context and the article as arguments. |
+| AFTER_PAGE_READ         | `AFTER_PAGE_READ`         | After each page has been read and been parsed by Mistune for content and metadata. Passes context and the page as arguments. |
+| AFTER_ALL_ARTICLES_READ | `AFTER_ALL_ARTICLES_READ` | After all articles have been read and been parsed by Mistune for content and metadata. Passes context and the list of articles as arguments. |
+| BEFORE_WRITING          | `BEFORE_WRITING`          | After all content is scanned and parsed, before anything is written. Passes context and Writer class as arguments. |
+| BEFORE_ARTICLE_WRITE    | `BEFORE_ARTICLE_WRITE`    | Before each article is written. Passes context and article object as arguments. |
 
 ### Caching for plugins
 
