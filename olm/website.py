@@ -108,10 +108,12 @@ class Site:
 
         logger.debug("Writing %d pages", len(pages))
         time_write_start = time.time()
+        number_written = 0
         for index, page in enumerate(pages):
             logger.debug("Writing file %d of %d", index + 1, len(pages))
-            page.write_file(context=CONTEXT)
-        logger.info("Wrote %d pages in %.3f seconds", len(pages), (time.time() - time_write_start))
+            wrote = page.write_file(context=CONTEXT)
+            number_written = number_written + 1 if wrote else number_written
+        logger.info("Wrote %d changed pages out of %d pages in %.3f seconds", number_written, len(CONTEXT.articles), (time.time() - time_write_start))
 
         # Index
         logger.debug("Writing articles index")
