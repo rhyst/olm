@@ -19,10 +19,10 @@ class Source:
             # Parse the file for content and metadata
             with codecs.open(filepath, 'r', encoding='utf8') as md_file:
                 reader = Reader(md_file.read())
-                metadata, raw_content = reader.parse()
+                metadata, content = reader.parse()
 
         elif metadata is not None and content is not None and basename is not None:
-            raw_content = content
+            self.content = content
             self.basename = basename
             self.source_filepath = None
             self.dirname  = None
@@ -33,10 +33,9 @@ class Source:
             raise Exception('Article object not supplied with either filepath or content and metadata.') 
         
         #TODO: this doesnt seem to work
-        signal_sender = Signal(signals.BEFORE_MD_CONVERT)
-        signal_sender.send(context=context, content=raw_content)
-
-        self.content = context.MD(raw_content)
+        #signal_sender = Signal(signals.BEFORE_MD_CONVERT)
+        #signal_sender.send(context=context, content=raw_content)
+        self.content = content
         self.metadata = metadata
         self.status = None
         self.template = None
@@ -50,6 +49,7 @@ class Source:
             return
         if self.template is None:
             return
+        self.content = context.MD(self.content)
         writer = Writer(
             self.context, 
             self.output_filepath, 
