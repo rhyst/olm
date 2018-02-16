@@ -89,9 +89,11 @@ class Site:
         signal_sender.send(context=CONTEXT, articles=CONTEXT.articles)
 
         # Check for duplicate output paths
-        # and see if file exists
+        # and see if output file exists
         outputs = []
         for f in CONTEXT['all_files']:
+            if f.output_filepath is None:
+                continue
             if f.output_filepath not in outputs:
                 outputs.append(f.output_filepath)
                 if not os.path.isfile(f.output_filepath):
@@ -109,7 +111,7 @@ class Site:
         time_write_start = time.time()
         number_written = 0
         for index, article in enumerate(CONTEXT.articles):
-            logger.debug("Writing file %d of %d", index + 1, len(CONTEXT.articles))
+            logger.spam("Writing file %d of %d", index + 1, len(CONTEXT.articles))
             wrote = article.write_file(context=CONTEXT)
             number_written = number_written + 1 if wrote else number_written
         logger.info("Wrote %d changed articles out of %d articles in %.3f seconds", number_written, len(CONTEXT.articles), (time.time() - time_write_start))
@@ -119,7 +121,7 @@ class Site:
         time_write_start = time.time()
         number_written = 0
         for index, page in enumerate(pages):
-            logger.debug("Writing file %d of %d", index + 1, len(pages))
+            logger.spam("Writing file %d of %d", index + 1, len(pages))
             wrote = page.write_file(context=CONTEXT)
             number_written = number_written + 1 if wrote else number_written
         logger.info("Wrote %d changed pages out of %d pages in %.3f seconds", number_written, len(pages), (time.time() - time_write_start))
