@@ -1,6 +1,7 @@
 import codecs
 import os
 from olm.helper import merge_dictionaries
+import lxml.html
 
 class Writer:
     def __init__(self, context, relative_path, template, **kwargs):
@@ -17,4 +18,6 @@ class Writer:
         os.makedirs(os.path.dirname(self.output_filepath), exist_ok=True)
         with codecs.open(self.output_filepath, 'w', encoding='utf-8') as html_file:
             html = self.template.render(**merge_dictionaries(self.context, self.kwargs))
+            page = lxml.html.document_fromstring(html)
+            page.cssselect('body')[0].text_content()
             html_file.write(html)

@@ -20,7 +20,7 @@ signals = Map({
 
 class Signal:
     def __init__(self, signal_value):
-        logger.debug('Instantiating new Signal "%s"', signal_value)
+        logger.spam('Instantiating new Signal "%s"', signal_value)
         if signal_value not in signals:
             logger.error('No such signal %s', signal_value)
             raise Exception('No such signal %s', signal_value)
@@ -29,7 +29,7 @@ class Signal:
 
     def send(self, **kwargs):
         time_start = time.time()
-        logger.debug('Sending signal "%s"', self.signal_value)
+        logger.spam('Sending signal "%s"', self.signal_value)
         self.sender.send(self.signal_value, **kwargs)
-        logger.debug('Ran signal "%s" in %.3f seconds', self.signal_value, (time.time() - time_start))
+        logger.spam('Ran signal "%s" in %.3f seconds', self.signal_value, (time.time() - time_start))
 

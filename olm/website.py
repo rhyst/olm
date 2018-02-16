@@ -74,15 +74,6 @@ class Site:
                         all_files.append(article)
         logger.info("Processed %d articles, %d unlisted articles, %d drafts, and %d pages in %.3f seconds", len(articles), len(unlisted_articles), len(draft_articles), len(pages), time.time() - time_source_start)            
 
-        # Check for duplicate output paths
-        outputs = []
-        for a in articles:
-            if a.output_filepath not in outputs:
-                outputs.append(a.output_filepath)
-            else: 
-                dupes = [ b for b in articles if b.output_filepath == a.output_filepath ]
-                logger.error("'%s' has the same output file path as '%s'. The other article will be overwritten.", a.source_filepath, dupes[0].source_filepath)
-
         # Extend the lists (in case a plugin has added to it post init)
         CONTEXT['all_files'].extend(all_files)
         CONTEXT['articles'].extend(sorted(articles, key=lambda k: (k.date), reverse=True))
@@ -96,6 +87,19 @@ class Site:
         
         signal_sender = Signal(signals.AFTER_ALL_ARTICLES_READ)
         signal_sender.send(context=CONTEXT, articles=CONTEXT.articles)
+
+        # Check for duplicate output paths
+        # and see if file exists
+        outputs = []
+        for f in CONTEXT['all_files']:
+            if f.output_filepath not in outputs:
+                outputs.append(f.output_filepath)
+                if not os.path.isfile(f.output_filepath):
+                    logger.spam("'%s' does not exist. Setting cached status to False.", f.source_filepath)
+                    f.same_as_cache = False
+            else: 
+                dupes = [ b for b in articles if b.output_filepath == f.output_filepath ]
+                logger.error("'%s' has the same output file path as '%s'. The other file will be overwritten.", f.source_filepath, dupes[0].source_filepath)
 
         signal_sender = Signal(signals.BEFORE_WRITING)
         signal_sender.send(context=CONTEXT, Writer=Writer)

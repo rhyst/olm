@@ -45,11 +45,11 @@ class Source:
         self.cache_type = 'SOURCE'
 
     def write_file(self, context=None, **kwargs):
-        if self.same_as_cache:
+        self.context = context if context is not None else self.context
+        if self.context.caching_enabled and self.same_as_cache:
             return
         if self.template is None:
             return
-        self.context = context if context is not None else self.context
         writer = Writer(
             self.context, 
             self.output_filepath, 
