@@ -14,7 +14,7 @@ from olm.logger import get_logger, set_log_level
 set_log_level(args.log_level)
 
 # Imports here in order to get correct log level
-from olm.context import load_context, load_default_context
+from olm.context import load_context, load_context_from_file, load_default_context
 from olm.plugins import Plugins
 from olm.signals import Signal, signals
 from olm.website import Site
@@ -26,22 +26,19 @@ def main():
     time_all = time.time()
     logger.notice("Beginning static site generation")
 
-    set_log_level(args.log_level)
-
-    CONTEXT = load_default_context(args.src)
-    CONTEXT.caching_enabled = True
-    if args.disable_caching:
-        CONTEXT.caching_enabled = False
-
     if args.settings is not None:
         settings_file_path = os.path.abspath(args.settings)
     else:
         settings_file_path = os.path.abspath(os.path.join(args.src, 'settings.py'))
     if os.path.isfile(settings_file_path):
-        CONTEXT = load_context(CONTEXT, settings_file_path=settings_file_path)
+        CONTEXT = load_context_from_file(settings_file_path, load_default_context(args.src))
     else:
         logger.error('No valid settings.py file found')
         sys.exit()
+    
+    CONTEXT.caching_enabled = True
+    if args.disable_caching:
+        CONTEXT.caching_enabled = False
 
     plugins = Plugins(CONTEXT)
 
@@ -53,24 +50,20 @@ def main():
 
     subsites = site.subsites
 
-    base_folder   = CONTEXT.BASE_FOLDER
-    output_folder = CONTEXT.OUTPUT_FOLDER
-    source_folder = CONTEXT.SOURCE_FOLDER
-    output_folder = CONTEXT.OUTPUT_FOLDER
     for subsite in subsites:
         plugins.unload_plugins()
         subsite_name = subsite[1:]
         logger.info("")
         logger.info("Found subsite '%s'", subsite_name)
         if subsite_name in CONTEXT.SUBSITES:
-            subsite_context = load_context(CONTEXT, settings=CONTEXT.SUBSITES[subsite_name])
+            subsite_context = load_context(CONTEXT.SUBSITES[subsite_name], CONTEXT)
         else:
             subsite_context = CONTEXT
         plugins.load_plugins(subsite_context)
-        subsite_context.OUTPUT_FOLDER  = os.path.abspath(os.path.join(output_folder, subsite_name))
-        subsite_context.BASE_FOLDER    = os.path.join(source_folder, subsite)
-        subsite_context.SOURCE_FOLDER  = os.path.join(source_folder, subsite)
-        subsite_context.CACHE_LOCATION = base_folder + os.sep + 'cache_' + subsite_name + '.pickle'
+        subsite_context.BASE_FOLDER    = os.path.join(CONTEXT.SOURCE_FOLDER, subsite)
+        subsite_context.SOURCE_FOLDER  = os.path.join(CONTEXT.SOURCE_FOLDER, subsite)
+        subsite_context.OUTPUT_FOLDER  = os.path.join(CONTEXT.OUTPUT_FOLDER, subsite_name)
+        subsite_context.CACHE_LOCATION = os.path.join(CONTEXT.BASE_FOLDER, 'cache_' + subsite_name + '.pickle')
         site = Site(subsite_context)
         site.build_site()
 

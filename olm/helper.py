@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 def merge_dictionaries(*args):
     if len(args) < 1:
         return {}
@@ -5,6 +7,15 @@ def merge_dictionaries(*args):
     for a in args[1:]:
         z.update(a)
     return z
+
+def merge_ordered_dictionaries(*args):
+    if len(args) < 1:
+        return {}
+    z = OrderedDict(args[0].copy())
+    for a in args[1:]:
+        z.update(a)
+    return z
+
 
 class Map(dict):
     def __init__(self, *args, **kwargs):

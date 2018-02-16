@@ -3,7 +3,8 @@ import sys
 import imp
 import mistune
 import re
-from olm.helper import Map, merge_dictionaries
+from collections import OrderedDict
+from olm.helper import Map, merge_ordered_dictionaries
 from olm.logger import get_logger
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -38,7 +39,7 @@ def load_default_context(path):
     INDEX_REFRESH        = ["ARTICLE.NEW_FILE"]
     INDEX_REFRESH_META   = []
 
-    CONTEXT = Map({
+    CONTEXT = OrderedDict({
         "BASE_FOLDER":          BASE_FOLDER,
         "CACHE_LOCATION":       CACHE_LOCATION,
         "SOURCE_FOLDER":        SOURCE_FOLDER,
@@ -62,28 +63,32 @@ def load_default_context(path):
         "PAGE_REFRESH":         PAGE_REFRESH,
         "PAGE_REFRESH_META":    PAGE_REFRESH_META,
         "INDEX_REFRESH":        INDEX_REFRESH,
-        "INDEX_REFRESH_META":   INDEX_REFRESH_META
+        "INDEX_REFRESH_META":   INDEX_REFRESH_META,
     })
 
     return CONTEXT
 
-def load_context(CONTEXT, settings_file_path=None, settings=None):
-    logger.info('Loading site context')
+def load_context_from_file(settings_file_path, prev_context=None):
+    sys_path = sys.path
+    sys.path.append(os.path.dirname(settings_file_path))
+    py_mod = imp.load_source('settings', settings_file_path)
+    user_settings = getattr(py_mod, 'SETTINGS')
+    sys.path = sys_path
 
-    # Load the file and extract the settings dict
-    if (settings_file_path is not None):
-        sys_path = sys.path
-        sys.path.append(os.path.dirname(settings_file_path))
-        py_mod = imp.load_source('settings', settings_file_path)
-        user_settings = getattr(py_mod, 'SETTINGS')
-        sys.path = sys_path
-    else:
-        user_settings = settings
+    return load_context(user_settings, prev_context)
+
+
+def load_context(context, prev_context=None):
+    logger.info('Loading site context')
     
     # Combine default and site settings
-    CONTEXT = Map(merge_dictionaries(CONTEXT, user_settings))
+    if prev_context is not None:
+        CONTEXT = merge_ordered_dictionaries(prev_context, context)
+    else:
+        CONTEXT = context
 
     for key in CONTEXT:
+        print(key)
         # Do variable substitutions in settings strings
         if isinstance(CONTEXT[key], str):
             value = CONTEXT[key]
@@ -102,4 +107,4 @@ def load_context(CONTEXT, settings_file_path=None, settings=None):
                 loader=FileSystemLoader([CONTEXT[key]])
             )
         
-    return CONTEXT
+    return Map(CONTEXT)
