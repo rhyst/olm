@@ -1,4 +1,5 @@
 import pickle
+import json
 import time
 import os
 import hashlib
@@ -26,10 +27,7 @@ def dict_compare(d1, d2):
     return comparison(added=added, removed=removed, modified=modified)
 
 def hash_object(thing):
-    m = hashlib.md5()
-    string = pickle.dumps(thing)
-    m.update(string)
-    return m.hexdigest()
+    return hashlib.md5(json.dumps(thing, sort_keys=True).encode('utf-8')).hexdigest()
 
 def add_change(file_status, change_list, file_type, change_type):
     change = '{}.{}'.format(file_type, change_type)
