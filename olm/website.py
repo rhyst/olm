@@ -98,7 +98,7 @@ class Site:
                 outputs.append(f.output_filepath)
                 if not os.path.isfile(f.output_filepath):
                     logger.spam("'%s' does not exist. Setting cached status to False.", f.source_filepath)
-                    f.same_as_cache = False
+                    #f.same_as_cache = False
             else: 
                 dupes = [ b for b in articles if b.output_filepath == f.output_filepath ]
                 logger.error("'%s' has the same output file path as '%s'. The other file will be overwritten.", f.source_filepath, dupes[0].source_filepath)
