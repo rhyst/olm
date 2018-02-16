@@ -34,5 +34,7 @@
         * [x] Statics folders
         * [ ] Statics processing options
 * [ ] Caching
-    - [ ] Customise article and page decaching triggers
+    - [X] Customise article and page decaching triggers
+    - [ ] Make sure default values work
+ 
 

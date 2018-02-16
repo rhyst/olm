@@ -1,4 +1,5 @@
 import os
+import sys
 import imp
 import mistune
 import re
@@ -30,8 +31,12 @@ def load_default_context(path):
     OUTPUT_CSS_FOLDER    = os.path.abspath(os.path.join(OUTPUT_FOLDER, 'theme', 'css'))
     OUTPUT_JS_FOLDER     = os.path.abspath(os.path.join(OUTPUT_FOLDER, 'theme', 'js'))
     NO_SCAN              = []
+    ARTICLE_REFRESH      = []
     ARTICLE_REFRESH_META = []
+    PAGE_REFRESH         = []
     PAGE_REFRESH_META    = []
+    INDEX_REFRESH        = ["ARTICLE.NEW_FILE"]
+    INDEX_REFRESH_META   = []
 
     CONTEXT = Map({
         "BASE_FOLDER":          BASE_FOLDER,
@@ -52,8 +57,12 @@ def load_default_context(path):
         "OUTPUT_CSS_FOLDER":    OUTPUT_CSS_FOLDER,
         "OUTPUT_JS_FOLDER":     OUTPUT_JS_FOLDER,
         "NO_SCAN":              NO_SCAN,
+        "ARTICLE_REFRESH":      ARTICLE_REFRESH,
         "ARTICLE_REFRESH_META": ARTICLE_REFRESH_META,
-        "PAGE_REFRESH_META":    PAGE_REFRESH_META
+        "PAGE_REFRESH":         PAGE_REFRESH,
+        "PAGE_REFRESH_META":    PAGE_REFRESH_META,
+        "INDEX_REFRESH":        INDEX_REFRESH,
+        "INDEX_REFRESH_META":   INDEX_REFRESH_META
     })
 
     return CONTEXT
@@ -63,8 +72,11 @@ def load_context(CONTEXT, settings_file_path=None, settings=None):
 
     # Load the file and extract the settings dict
     if (settings_file_path is not None):
+        sys_path = sys.path
+        sys.path.append(os.path.dirname(settings_file_path))
         py_mod = imp.load_source('settings', settings_file_path)
         user_settings = getattr(py_mod, 'SETTINGS')
+        sys.path = sys_path
     else:
         user_settings = settings
     

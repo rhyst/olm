@@ -3,7 +3,9 @@ import datetime
 import codecs
 import re
 import math
+
 from olm.writer import Writer
+from olm.helper import merge_dictionaries
 
 class Index:
     """Represents an index listing"""
@@ -34,10 +36,21 @@ class Index:
 
 
     def write_file(self):
-        changes = self.context['cache_change_types']
-        if self.context.caching_enabled and "ARTICLE.NEW_FILE" not in changes and "ARTICLE.META_CHANGE" not in changes:
-            return False
         """Write the article to a file"""
+        cached = True
+        changes                = self.context['cache_change_types']
+        changed_meta           = self.context['cache_changed_meta']
+        refresh_triggers       = self.context['INDEX_REFRESH']
+        refresh_meta_triggers  = self.context['INDEX_REFRESH_META']
+        if any(i in changes for i in refresh_triggers):
+            cached = False
+        if any(any(m in merge_dictionaries(*c) for m in refresh_meta_triggers) for c in changed_meta):
+            cached = False
+        if not self.context.caching_enabled:
+            cached = False
+        if cached:
+            return False
+        
         dirname = os.path.dirname(self.output_filepath)
         for i, page in enumerate(self.pages):
             page_number = i + 1

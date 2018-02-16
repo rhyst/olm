@@ -3,8 +3,10 @@ from os.path import dirname, splitext, relpath, join
 import datetime
 import codecs
 import re
+
 from olm.signals import signals, Signal
 from olm.source import Source
+from olm.helper import merge_dictionaries
 
 class Page(Source):
     """Object representing an article"""
@@ -25,4 +27,13 @@ class Page(Source):
 
 
     def write_file(self, context=None):
+        changes                = self.context['cache_change_types']
+        changed_meta           = self.context['cache_changed_meta']
+        refresh_triggers       = self.context['PAGE_REFRESH']
+        refresh_meta_triggers  = self.context['PAGE_REFRESH_META']
+        if any(i in changes for i in refresh_triggers):
+            self.same_as_cache = False
+        if any(any(m in merge_dictionaries(*c) for m in refresh_meta_triggers) for c in changed_meta):
+            self.same_as_cache = False
         super().write_file(context, page=self)
+        return not self.same_as_cache

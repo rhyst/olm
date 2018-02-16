@@ -69,13 +69,13 @@ class Article(Source):
 
     def write_file(self, context=None):
         self.context = context if context is not None else self.context
-        changes      = self.context['cache_change_types']
-        changed_meta = self.context['cache_changed_meta']
-        if "ARTICLE.NEW_FILE" in changes:
+        changes                = self.context['cache_change_types']
+        changed_meta           = self.context['cache_changed_meta']
+        refresh_triggers       = self.context['ARTICLE_REFRESH']
+        refresh_meta_triggers  = self.context['ARTICLE_REFRESH_META']
+        if any(i in changes for i in refresh_triggers):
             self.same_as_cache = False
-        for added, removed, modified in changed_meta:
-            for key in self.context['ARTICLE_REFRESH_META']:
-                if key in added or key in removed or key in modified:
-                    self.same_as_cache = False
+        if any(any(m in merge_dictionaries(*c) for m in refresh_meta_triggers) for c in changed_meta):
+            self.same_as_cache = False
         super().write_file(context, article=self)
         return not self.same_as_cache
