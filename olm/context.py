@@ -19,7 +19,7 @@ def load_default_context(path):
     JS_FOLDER            = os.path.abspath(os.path.join(BASE_FOLDER, 'theme', 'static', 'js'))
     TEMPLATES_FOLDER     = os.path.abspath(os.path.join(BASE_FOLDER, 'theme', 'templates'))
     PLUGINS_FOLDER       = os.path.abspath(os.path.join(BASE_FOLDER, 'plugins',))
-    MD                   = mistune.Markdown()
+    MD                   = mistune.Markdown(escape=False)
     JINJA_ENV            = Environment(
                             loader=FileSystemLoader([TEMPLATES_FOLDER])
                             )
