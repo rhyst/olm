@@ -81,7 +81,9 @@ def check_cache(CONTEXT, files):
             # and store it along with a meta change
             if old_hashes[id_hash][0] != meta_hash:
                 logger.debug('{} metadata is different to cache'.format(identifier))
-                if afile.status != ArticleStatus.DRAFT and afile.status:
+                logger.debug('{}'.format(old_hashes[id_hash][2]))
+                logger.debug('{}'.format(afile.metadata))
+                if afile.status != ArticleStatus.DRAFT:
                     diff = dict_compare(old_hashes[id_hash][2], afile.metadata)
                     meta_changes.append(diff)
                 changes = add_change(afile.status, changes, afile.cache_type, CacheTypes.META_CHANGE)
