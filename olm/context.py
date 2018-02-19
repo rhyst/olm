@@ -87,24 +87,27 @@ def load_context(context, prev_context=None):
     else:
         CONTEXT = context
 
-    for key in CONTEXT:
-        print(key)
-        # Do variable substitutions in settings strings
-        if isinstance(CONTEXT[key], str):
-            value = CONTEXT[key]
-            pattern = re.compile(r'{{\s*(\S*)\s*}}')
-            for match in re.finditer(pattern, CONTEXT[key]):
-                try:
-                    value = value.replace(match.group(0), CONTEXT[match.group(1)])
-                except KeyError as e:
-                    logger.warn("Can't replace '%s' in settings file for key %s", match.group(1), key)
-                    logger.warn(e)
-            CONTEXT[key] = value
+    replace_happened = True
+    while replace_happened:
+        replace_happened = False
+        for key in CONTEXT:
+            # Do variable substitutions in settings strings
+            if isinstance(CONTEXT[key], str):
+                value = CONTEXT[key]
+                pattern = re.compile(r'{{\s*(\S*)\s*}}')
+                for match in re.finditer(pattern, CONTEXT[key]):
+                    try:
+                        value = value.replace(match.group(0), CONTEXT[match.group(1)])
+                        replace_happened = True
+                    except KeyError as e:
+                        logger.warn("Can't replace '%s' in settings file for key %s", match.group(1), key)
+                        logger.warn(e)
+                CONTEXT[key] = value
 
-        # Reset the Jinja Env if we have a new templates folder
-        if key == "TEMPLATES_FOLDER":
-            CONTEXT["JINJA_ENV"] = Environment(
-                loader=FileSystemLoader([CONTEXT[key]])
-            )
+            # Reset the Jinja Env if we have a new templates folder
+            if key == "TEMPLATES_FOLDER":
+                CONTEXT["JINJA_ENV"] = Environment(
+                    loader=FileSystemLoader([CONTEXT[key]])
+                )
         
     return Map(CONTEXT)
