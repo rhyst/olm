@@ -32,7 +32,7 @@ class Index:
     def paginated_path(self, page_number, basepath):
         if page_number == 1:
             return os.path.join(basepath, 'index.html'), '/'
-        return os.path.join(self.context.OUTPUT_FOLDER,'pg', str(page_number) , 'index.html'), os.path.join('/', 'pg', str(page_number))
+        return os.path.join(self.context.OUTPUT_FOLDER,'pg', str(page_number) , 'index.html'), os.path.join('pg', str(page_number))
 
 
     def write_file(self):
