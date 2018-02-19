@@ -33,6 +33,7 @@
         * [x] Source and build folders
         * [x] Statics folders
         * [ ] Statics processing options
+    - [ ] Use Jinja for slugs?
 * [ ] Caching
     - [X] Customise article and page decaching triggers
     - [ ] Make sure default values work
