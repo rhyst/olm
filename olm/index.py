@@ -53,6 +53,8 @@ class Index:
         
         dirname = os.path.dirname(self.output_filepath)
         for i, page in enumerate(self.pages):
+            for article in page:
+                article.summary = self.context.MD(article.summary)
             page_number = i + 1
             output_filepath, url = self.paginated_path(page_number, dirname)
             previous_page = None

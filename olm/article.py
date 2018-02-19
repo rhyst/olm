@@ -24,7 +24,7 @@ class Article(Source):
         self.date       = datetime.datetime.strptime(self.metadata['date'].strip(), '%Y-%m-%d') if 'date' in self.metadata else datetime.datetime.now()
         self.type       = self.metadata['type'].strip().lower() if 'type' in self.metadata else None
         self.title      = self.metadata['title'] if 'title' in self.metadata else basename
-        self.summary    = context.MD(self.metadata['summary']) if 'summary' in self.metadata else None
+        self.summary    = self.metadata['summary'] if 'summary' in self.metadata else None
         self.location   = self.metadata['location'].strip().lower() if 'location' in self.metadata else None
         
         # Status
