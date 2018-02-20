@@ -1,7 +1,7 @@
 class ArticleStatus:
-    ACTIVE = 1
-    UNLISTED = 2
-    DRAFT = 3
+    ACTIVE = "active"
+    UNLISTED = "unlisted"
+    DRAFT = "draft"
 
 class CacheTypes:
     NEW_FILE = "NEW_FILE"
