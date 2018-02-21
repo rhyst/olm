@@ -75,12 +75,12 @@ Below is a list of the settings you can change for your site. Each setting strin
 | `OUTPUT_JS_FOLDER`     | `{{OUTPUT_FOLDER}}\theme\js`       | The output folder for compiled js.       |
 | `SUBSITES`             | `{}`                               | See subsite section.                     |
 | `ARTICLE_SLUG`         | `'{location}-{date}.html'`         | The format of article filenames. The curly brace vars can be any Article attribute. |
-| `ARTICLE_REFRESH`      | []                                 | List of cache types that trigger articles to rebuild |
-| `ARTICLE_REFRESH_META` | []                                 | List of metadata keys that trigger articles to rebuild when changed |
-| `PAGE_REFRESH`         | []                                 | List of cache types that trigger pages to rebuild |
-| `PAGE_REFRESH_META`    | []                                 | List of metadata keys that trigger pages to rebuild when changed |
-| `INDEX_REFRESH`        | []                                 | List of cache types that trigger the index to rebuild |
-| `INDEX_REFRESH_META`   | []                                 | List of metadata keys that trigger the index to rebuild when changed |
+| `ARTICLE_WRITE_TRIGGERS`      | []                                 | List of cache types that trigger articles to rebuild |
+| `ARTICLE_META_WRITE_TRIGGERS` | []                                 | List of metadata keys that trigger articles to rebuild when changed |
+| `PAGE_WRITE_TRIGGERS`         | []                                 | List of cache types that trigger pages to rebuild |
+| `PAGE_META_WRITE_TRIGGERS`    | []                                 | List of metadata keys that trigger pages to rebuild when changed |
+| `INDEX_WRITE_TRIGGERS`        | []                                 | List of cache types that trigger the index to rebuild |
+| `INDEX_META_WRITE_TRIGGERS`   | []                                 | List of metadata keys that trigger the index to rebuild when changed |
 
 ## Themes
 
@@ -160,13 +160,30 @@ settings in the subsite settings e.g.
 By default the subsite will use the same set of plugins as the main site. You can set the "PLUGINS" setting in the subsite settings to a different list of plugins. 
 Being able to specify a different plugin path is a TODO.
 
-### Caching
+### Caching
 
 Olm will try to avoid rewriting files that do not need to be changed. Writing files is slow, so this helps keep the build times to a minimum. The first time it runs it will generate a cache file. On subsequent runs it will compare files to their cached versions as it reads them. If they are the same then they will not be rewritten. The cache file is update on each run.
 
-When Olm detects that a file has changed it adds it to a list of change types. This consists of a 'file type'
+However this means that if you have pages that depend on other pages (a index page, or a page that displays some statistics on the articles metadata) then they wouldn't be default be rewritten when an article changes.
 
-However this means that if you have an index page listing all of the articles and a summary of their content then it will not update when you add a new article, or change an article's summary. If you would like it to update then you need to set the `INDEX_REFRESH` setting in the settings. 
+When Olm detects that a file has changed it adds it to a list of changes. These changes consist of a 'file type' and a 'change type'. The file type will be something like `ARTICLE` or `PAGE`. The change type will be `CONTENT` or `METADATA`. The change is then something like `ARTICLE.CONTENT` or `PAGE.METADATA`.
+
+Then there is, for example, the `INDEX_WRITE_TRIGGERS` setting. You can set this to a list of changes like [`ARTICLE.METADATA`, `PAGE.METADATA`] and then if any article or page's metadata changes then the index will be rewritten and updated along with the article or page.
+
+If you only want to update when a particular item of metadata changes then that is possible to. Olm also collects a list of the changed metadata and you can set `INDEX_META_WRITE_TRIGGERS` to [`title`, `date`] to only refresh when title or date metadata is updated.
+
+| Change types   | Description |
+|----------------|-------------|
+| `CONTENT`      | Added when the content of any file changes (not including metdata) |
+| `METADATA`     | Added when the metadata of any file changes |
+| `NEW_FILE`     | Added when there is a new file |
+| `REMOVED_FILE` | Added when a file is removed |
+
+| File types | Description |
+|------------|-------------|
+| `ARTICLE`  | A file of the article type |
+| `PAGE`     | A file of the page type    |
+
 
 ## Writing plugins
 
@@ -197,7 +214,7 @@ def register():
 ```
 
 
-### Current signals
+### Signals
 
 | Signal Name             | String Value              | Description                              |
 | ----------------------- | ------------------------- | ---------------------------------------- |
@@ -209,6 +226,12 @@ def register():
 | BEFORE_ARTICLE_WRITE    | `BEFORE_ARTICLE_WRITE`    | Before each article is written. Passes context and article object as arguments. |
 
 ### Caching for plugins
+
+If your plugin introduces a new file type (in addition to articles, pages and indexes), maybe author pages listing articles by particular authors, then it can make use of Olm's caching. The file should be a class that inherits from the `Source` class in `olm.source`.
+
+The file should have the attribute `cache_type` set to some unique value. In the author page example maybe you would choose `AUTHOR_PAGE`. All these files should be added to the all_files object in the context before the caching functions are run. They will then be hashed like the articles and pages and given the `same_as_cache` attribute indicating if they have changed.
+
+If one of these file types changes it will appear in the changes list too so you can have indexes, articles, pages or anything else you add rewritten when the file changes. In the author example it would be added as `AUTHOR_PAGE.METADATA` or `AUTHOR_PAGE.CONTENT` depending on what changed.
 
 ## Acknowledgement
 
