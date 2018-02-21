@@ -160,7 +160,7 @@ settings in the subsite settings e.g.
 By default the subsite will use the same set of plugins as the main site. You can set the "PLUGINS" setting in the subsite settings to a different list of plugins. 
 Being able to specify a different plugin path is a TODO.
 
-### Caching
+### Caching
 
 Olm will try to avoid rewriting files that do not need to be changed. Writing files is slow, so this helps keep the build times to a minimum. The first time it runs it will generate a cache file. On subsequent runs it will compare files to their cached versions as it reads them. If they are the same then they will not be rewritten. The cache file is update on each run.
 
@@ -173,12 +173,14 @@ Then there is, for example, the `INDEX_WRITE_TRIGGERS` setting. You can set this
 If you only want to update when a particular item of metadata changes then that is possible to. Olm also collects a list of the changed metadata and you can set `INDEX_META_WRITE_TRIGGERS` to [`title`, `date`] to only refresh when title or date metadata is updated.
 
 | Change types   | Description |
+|----------------|-------------|
 | `CONTENT`      | Added when the content of any file changes (not including metdata) |
 | `METADATA`     | Added when the metadata of any file changes |
 | `NEW_FILE`     | Added when there is a new file |
 | `REMOVED_FILE` | Added when a file is removed |
 
 | File types | Description |
+|------------|-------------|
 | `ARTICLE`  | A file of the article type |
 | `PAGE`     | A file of the page type    |
 
