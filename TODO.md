@@ -38,5 +38,6 @@
     - [X] Customise article and page decaching triggers
     - [ ] Make sure default values work
     - [ ] Check 'cached' files exist in output location (make configurable)
+    - [ ] Ability to subscribe to specific metadata from specific file types
  
 

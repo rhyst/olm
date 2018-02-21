@@ -32,12 +32,12 @@ def load_default_context(path):
     OUTPUT_CSS_FOLDER    = os.path.abspath(os.path.join(OUTPUT_FOLDER, 'theme', 'css'))
     OUTPUT_JS_FOLDER     = os.path.abspath(os.path.join(OUTPUT_FOLDER, 'theme', 'js'))
     NO_SCAN              = []
-    ARTICLE_REFRESH      = []
-    ARTICLE_REFRESH_META = []
-    PAGE_REFRESH         = []
-    PAGE_REFRESH_META    = []
-    INDEX_REFRESH        = ["ARTICLE.NEW_FILE"]
-    INDEX_REFRESH_META   = []
+    ARTICLE_WRITE_TRIGGERS      = []
+    ARTICLE_META_WRITE_TRIGGERS = []
+    PAGE_WRITE_TRIGGERS         = []
+    PAGE_META_WRITE_TRIGGERS    = []
+    INDEX_WRITE_TRIGGERS        = ["ARTICLE.NEW_FILE"]
+    INDEX_META_WRITE_TRIGGERS   = []
 
     CONTEXT = OrderedDict({
         "BASE_FOLDER":          BASE_FOLDER,
@@ -58,12 +58,12 @@ def load_default_context(path):
         "OUTPUT_CSS_FOLDER":    OUTPUT_CSS_FOLDER,
         "OUTPUT_JS_FOLDER":     OUTPUT_JS_FOLDER,
         "NO_SCAN":              NO_SCAN,
-        "ARTICLE_REFRESH":      ARTICLE_REFRESH,
-        "ARTICLE_REFRESH_META": ARTICLE_REFRESH_META,
-        "PAGE_REFRESH":         PAGE_REFRESH,
-        "PAGE_REFRESH_META":    PAGE_REFRESH_META,
-        "INDEX_REFRESH":        INDEX_REFRESH,
-        "INDEX_REFRESH_META":   INDEX_REFRESH_META,
+        "ARTICLE_WRITE_TRIGGERS":      ARTICLE_WRITE_TRIGGERS,
+        "ARTICLE_META_WRITE_TRIGGERS": ARTICLE_META_WRITE_TRIGGERS,
+        "PAGE_WRITE_TRIGGERS":         PAGE_WRITE_TRIGGERS,
+        "PAGE_META_WRITE_TRIGGERS":    PAGE_META_WRITE_TRIGGERS,
+        "INDEX_WRITE_TRIGGERS":        INDEX_WRITE_TRIGGERS,
+        "INDEX_META_WRITE_TRIGGERS":   INDEX_META_WRITE_TRIGGERS,
     })
 
     return CONTEXT

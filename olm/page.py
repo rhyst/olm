@@ -38,8 +38,8 @@ class Page(Source):
     def write_file(self, context=None):
         changes                = self.context['cache_change_types']
         changed_meta           = self.context['cache_changed_meta']
-        refresh_triggers       = self.context['PAGE_REFRESH']
-        refresh_meta_triggers  = self.context['PAGE_REFRESH_META']
+        refresh_triggers       = self.context['PAGE_WRITE_TRIGGERS']
+        refresh_meta_triggers  = self.context['PAGE_META_WRITE_TRIGGERS']
         if any(i in changes for i in refresh_triggers):
             self.same_as_cache = False
         if any(any(m in merge_dictionaries(*c) for m in refresh_meta_triggers) for c in changed_meta):
