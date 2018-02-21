@@ -105,8 +105,6 @@ def check_cache(CONTEXT, files):
         changes = add_change(None, changes, old_hashes[r][3], CacheTypes.REMOVED_FILE)
         meta_changes.append(comparison(added={}, removed=old_hashes[r][2], modified={}))
 
-    for r in removed:
-        print(old_hashes[r])
     logger.info('{} files are new or changed'.format(no_of_files))
     logger.debug('{} are the new changes'.format(changes))
     CONTEXT['cache_change_types'] = changes
