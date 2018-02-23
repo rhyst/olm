@@ -51,6 +51,10 @@ def main():
     subsites = site.subsites
 
     for subsite in subsites:
+        CONTEXT = load_context_from_file(settings_file_path, load_default_context(args.src))
+        CONTEXT.caching_enabled = True
+        if args.disable_caching:
+            CONTEXT.caching_enabled = False
         plugins.unload_plugins()
         subsite_name = subsite[1:]
         logger.info("")
