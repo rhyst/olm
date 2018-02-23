@@ -40,8 +40,9 @@ class Index:
         cached = True
         changes                = self.context['cache_change_types']
         changed_meta           = self.context['cache_changed_meta']
-        refresh_triggers       = self.context['INDEX_WRITE_TRIGGERS
+        refresh_triggers       = self.context['INDEX_WRITE_TRIGGERS']
         refresh_meta_triggers  = self.context['INDEX_META_WRITE_TRIGGERS']
+
         if any(i in changes for i in refresh_triggers):
             cached = False
         if any(any(m in merge_dictionaries(*c) for m in refresh_meta_triggers) for c in changed_meta):
