@@ -18,19 +18,18 @@ class Page(Source):
         self.title           = self.metadata['title'] if 'title' in self.metadata else self.basename
         self.url             = self.relpath
 
-        self.cache_id = self.output_filepath
-        self.cache_type = 'PAGE'
-
         if 'PAGE_SLUG' in context:
             slug_dict = vars(self)
             output_filename = context.PAGE_SLUG.format(**slug_dict)
-            print(output_filename)
         else:
             output_filename = '{}.html'.format(self.basename)
         
         self.output_filepath = os.path.join(context.OUTPUT_FOLDER, 'pages', output_filename)
         self.url             = 'pages/{}'.format(output_filename)
 
+        self.cache_id = self.output_filepath
+        self.cache_type = 'PAGE'
+        
         signal_sender = Signal(signals.AFTER_PAGE_READ)
         signal_sender.send(context=context, page=self)
 
