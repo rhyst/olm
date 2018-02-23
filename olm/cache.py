@@ -32,8 +32,7 @@ def hash_object(thing):
 def add_change(file_status, change_list, file_type, change_type):
     change = '{}.{}'.format(file_type, change_type)
     if change not in change_list:
-        if file_status != ArticleStatus.DRAFT:
-            change_list.append(change)
+        change_list.append(change)
     return change_list
 
 def check_cache(CONTEXT, files):
@@ -81,9 +80,8 @@ def check_cache(CONTEXT, files):
                 logger.debug('{} metadata is different to cache'.format(identifier))
                 logger.debug('{}'.format(old_hashes[id_hash][2]))
                 logger.debug('{}'.format(afile.metadata))
-                if afile.status != ArticleStatus.DRAFT:
-                    diff = dict_compare(old_hashes[id_hash][2], afile.metadata)
-                    meta_changes.append(diff)
+                diff = dict_compare(old_hashes[id_hash][2], afile.metadata)
+                meta_changes.append(diff)
                 changes = add_change(afile.status, changes, afile.cache_type, CacheTypes.META_CHANGE)
                 no_of_files = no_of_files + 1
             # If difference in content then just add a content change
