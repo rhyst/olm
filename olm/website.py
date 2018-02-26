@@ -107,14 +107,15 @@ class Site:
         signal_sender.send(context=CONTEXT, Writer=Writer)
 
         # Write all the articles
-        logger.debug("Writing %d articles", len(CONTEXT.articles))
+        all_articles = CONTEXT.articles + unlisted_articles
+        logger.debug("Writing %d articles", len(all_articles))
         time_write_start = time.time()
         number_written = 0
-        for index, article in enumerate(CONTEXT.articles):
-            logger.spam("Writing file %d of %d", index + 1, len(CONTEXT.articles))
+        for index, article in enumerate(all_articles):
+            logger.spam("Writing file %d of %d", index + 1, len(all_articles))
             wrote = article.write_file(context=CONTEXT)
             number_written = number_written + 1 if wrote else number_written
-        logger.info("Wrote %d changed articles out of %d articles in %.3f seconds", number_written, len(CONTEXT.articles), (time.time() - time_write_start))
+        logger.info("Wrote %d changed articles out of %d articles in %.3f seconds", number_written, len(all_articles), (time.time() - time_write_start))
 
         # Write all the pages
         logger.debug("Writing %d pages", len(pages))
