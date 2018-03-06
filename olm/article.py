@@ -67,7 +67,7 @@ class Article(Source):
         signal_sender = Signal(signals.AFTER_ARTICLE_READ)
         signal_sender.send(context=context, article=self)
 
-    def write_file(self, context=None):
+    def calc_cache_status(self, context=None):
         self.context = context if context is not None else self.context
         changes                = self.context['cache_change_types']
         changed_meta           = self.context['cache_changed_meta']
@@ -77,5 +77,10 @@ class Article(Source):
             self.same_as_cache = False
         if any(any(m in merge_dictionaries(*c) for m in refresh_meta_triggers) for c in changed_meta):
             self.same_as_cache = False
+        return self.same_as_cache
+
+    def write_file(self, context=None):
+        self.context = context if context is not None else self.context
+        self.calc_cache_status()
         super().write_file(context, article=self)
         return not self.same_as_cache

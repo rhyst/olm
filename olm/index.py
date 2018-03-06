@@ -34,7 +34,6 @@ class Index:
             return os.path.join(basepath, 'index.html'), '/'
         return os.path.join(self.context.OUTPUT_FOLDER,'pg', str(page_number) , 'index.html'), os.path.join('pg', str(page_number))
 
-
     def write_file(self):
         """Write the article to a file"""
         cached = True

@@ -108,6 +108,9 @@ def check_cache(CONTEXT, files):
     CONTEXT['cache_change_types'] = changes
     CONTEXT['cache_changed_meta'] = meta_changes
    
+    for afile in files:
+       afile.calc_cache_status(CONTEXT)
+
     # Write the latest build's caches to file
     with open(CONTEXT.CACHE_LOCATION, 'wb') as handle:
         pickle.dump(hashes, handle, protocol=pickle.HIGHEST_PROTOCOL)

@@ -42,6 +42,10 @@ class Source:
         self.output_filepath = None
         self.same_as_cache = False
         self.cache_type = 'SOURCE'
+    
+    def calc_cache_status(self, context=None):
+        self.context = context if context is not None else self.context
+        return self.same_as_cache
 
     def write_file(self, context=None, **kwargs):
         self.context = context if context is not None else self.context
