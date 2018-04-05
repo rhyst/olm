@@ -53,7 +53,7 @@ class Source:
             return
         if self.template is None:
             return
-        self.content = context.MD(self.content)
+        self.content = context.MD(self.content) # TODO: work out why this is here
         writer = Writer(
             self.context, 
             self.output_filepath, 

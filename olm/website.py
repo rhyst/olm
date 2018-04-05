@@ -100,11 +100,11 @@ class Site:
                     logger.spam("'%s' does not exist. Setting cached status to False.", f.source_filepath)
                     #f.same_as_cache = False
             else: 
-                dupes = [ b for b in articles if b.output_filepath == f.output_filepath ]
+                dupes = [ b for b in CONTEXT['all_files'] if b.output_filepath == f.output_filepath ]
                 logger.error("'%s' has the same output file path as '%s'. The other file will be overwritten.", f.source_filepath, dupes[0].source_filepath)
 
         signal_sender = Signal(signals.BEFORE_WRITING)
-        signal_sender.send(context=CONTEXT, Writer=Writer)
+        signal_sender.send(context=CONTEXT)
 
         # Write all the articles
         all_articles = CONTEXT.articles + unlisted_articles
@@ -138,7 +138,7 @@ class Site:
             logger.info("Reused cached index in %.3f seconds", (time.time() - time_write_start))
 
         signal_sender = Signal(signals.AFTER_WRITING)
-        signal_sender.send(context=CONTEXT, Writer=Writer)
+        signal_sender.send(context=CONTEXT)
 
         # Find, compile and move static files
         logger.debug("Compiling static files")
