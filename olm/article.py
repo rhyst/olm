@@ -83,4 +83,4 @@ class Article(Source):
         self.context = context if context is not None else self.context
         self.calc_cache_status()
         super().write_file(context, article=self)
-        return not self.same_as_cache
+        return (not self.same_as_cache) or context.caching_enabled

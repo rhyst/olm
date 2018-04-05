@@ -39,7 +39,7 @@ def check_cache(CONTEXT, files):
     time_start = time.time()
     CONTEXT['cache_change_types'] = []
     CONTEXT['cache_changed_meta'] = []
-    if not CONTEXT.caching_enabled:
+    if not CONTEXT.caching_enabled and not CONTEXT.rewrite_cache_files_when_disabled:
         logger.info('Caching disabled')
         return
     
@@ -105,6 +105,7 @@ def check_cache(CONTEXT, files):
 
     logger.info('{} files are new or changed'.format(no_of_files))
     logger.debug('{} are the new changes'.format(changes))
+
     CONTEXT['cache_change_types'] = changes
     CONTEXT['cache_changed_meta'] = meta_changes
    

@@ -7,6 +7,7 @@ parser = argparse.ArgumentParser(description='Olm static site generator',)
 parser.add_argument('src', action="store", help='Path to site folder')
 parser.add_argument('-s', '--settings', action="store", default=None, help='Path to settings.py file')
 parser.add_argument('-d', '--disable-caching', action="store_true", help='Disable caching')
+parser.add_argument('-r', '--disable-caching-and-rewrite', action="store_true", help='Disable caching but still rewrite cache files')
 parser.add_argument('-l', '--log-level', action="store", default="NOTICE", help='Set log level')
 args = parser.parse_args()
 
@@ -37,8 +38,11 @@ def main():
         sys.exit()
     
     CONTEXT.caching_enabled = True
-    if args.disable_caching:
+    CONTEXT.rewrite_cache_files_when_disabled = False
+    if args.disable_caching or args.disable_caching_and_rewrite:
         CONTEXT.caching_enabled = False
+    if args.disable_caching_and_rewrite:
+        CONTEXT.rewrite_cache_files_when_disabled = True
 
     plugins = Plugins(CONTEXT)
 

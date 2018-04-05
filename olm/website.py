@@ -115,7 +115,7 @@ class Site:
             logger.spam("Writing file %d of %d", index + 1, len(all_articles))
             wrote = article.write_file(context=CONTEXT)
             number_written = number_written + 1 if wrote else number_written
-        logger.info("Wrote %d changed articles out of %d articles in %.3f seconds", number_written, len(all_articles), (time.time() - time_write_start))
+        logger.info("Wrote %d out of %d articles in %.3f seconds", number_written, len(all_articles), (time.time() - time_write_start))
 
         # Write all the pages
         logger.debug("Writing %d pages", len(pages))
@@ -125,7 +125,7 @@ class Site:
             logger.spam("Writing file %d of %d", index + 1, len(pages))
             wrote = page.write_file(context=CONTEXT)
             number_written = number_written + 1 if wrote else number_written
-        logger.info("Wrote %d changed pages out of %d pages in %.3f seconds", number_written, len(pages), (time.time() - time_write_start))
+        logger.info("Wrote %d out of %d pages in %.3f seconds", number_written, len(pages), (time.time() - time_write_start))
 
         # Write the index
         logger.debug("Writing articles index")
