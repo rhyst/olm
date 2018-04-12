@@ -5,9 +5,10 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Olm static site generator',)
 parser.add_argument('src', action="store", help='Path to site folder')
-parser.add_argument('-s', '--settings', action="store", default=None, help='Path to settings.py file')
+parser.add_argument('-i', '--init', action="store_true", help='Initiliase a project at src')
 parser.add_argument('-d', '--disable-caching', action="store_true", help='Disable caching')
 parser.add_argument('-r', '--disable-caching-and-rewrite', action="store_true", help='Disable caching but still rewrite cache files')
+parser.add_argument('-s', '--settings', action="store", default=None, help='Path to settings.py file')
 parser.add_argument('-l', '--log-level', action="store", default="NOTICE", help='Set log level')
 args = parser.parse_args()
 
@@ -19,11 +20,22 @@ from olm.context import load_context, load_context_from_file, load_default_conte
 from olm.plugins import Plugins
 from olm.signals import Signal, signals
 from olm.website import Site
+from olm.quickstart import quickstart
 
 logger = get_logger('olm')
 
 def main():
     """Main olm function"""
+    if args.init:
+        logger.notice("Setting up basic website")
+        base_path = os.path.abspath(args.src)
+        if os.listdir(base_path):
+            logger.error("The directory must be empty in order to initialise")
+            return
+        quickstart(base_path)
+        logger.success("Done! Run 'olm {}'".format(args.src))
+        return
+
     time_all = time.time()
     logger.notice("Beginning static site generation")
 
