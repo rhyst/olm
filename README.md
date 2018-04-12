@@ -28,8 +28,9 @@ If you installed via pip you can run:
 Options are:
 
 * `-s` or `--settings`:  Specify a different settings file. Default is `./settings.py`.
-* `-d` or `—disable-cache`:  Disables caching so the site is completely regenerated.
-* `-l` or `—log-level`: Set the log level. Can be `DEBUG`, `INFO`, `NOTICE`, `WARNING`, `ERROR`, or `CRITICAL`. Default is `INFO`.
+* `-d` or `--disable-cache`:  Disables caching so the site is completely regenerated.
+* `-r` or `--disable-caching-and-rewrite`: Disables caching so the site is completely regenerated but still updates the cache.
+* `-l` or `--log-level`: Set the log level. Can be `DEBUG`, `INFO`, `NOTICE`, `WARNING`, `ERROR`, or `CRITICAL`. Default is `INFO`.
 
 
 ## Content
