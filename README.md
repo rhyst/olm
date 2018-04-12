@@ -27,6 +27,7 @@ If you installed via pip you can run:
     olm path/to/site
 Options are:
 
+* `-i` or `--init`:  Create a basic example site.
 * `-s` or `--settings`:  Specify a different settings file. Default is `./settings.py`.
 * `-d` or `--disable-cache`:  Disables caching so the site is completely regenerated.
 * `-r` or `--disable-caching-and-rewrite`: Disables caching so the site is completely regenerated but still updates the cache.
