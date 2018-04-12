@@ -39,21 +39,35 @@ Olm will scan the `src` directory for markdown files. Any files found in the `pa
 The output html will be placed in the `dist` directory, with articles going into the `articles` directory, pages into the `pages` directory and subsites into a directory with the name of the subsite.
 
     .
-    ├── src
-    │   ├── _my_subsite
-    │   ├── articles
-    │   ├── my_folder
-    │   └── pages
-    ├── dist
-    │   ├── my_subsite
-    │   ├── articles
-    │   ├── pages
-    │   ├── pages
+    ├── src/
+    │   ├── _my_subsite/
+    │   ├── articles/
+    │   ├── my_folder/
+    │   └── pages/
+    ├── dist/
+    │   ├── my_subsite/
+    │   ├── articles/
+    │   ├── pages/
+    │   ├── pages/
     │   └── index.html
-    ├── theme
-    └── plugins
+    ├── theme/
+    ├── plugins/
+    └── settings.py
+    
 
 ## Settings
+
+Olm will look for a `settings.py` file at the path you pass to the `olm` command. You can also use the `-s` parameter to specify a different name and directory.
+
+The `settings.py` file should contain a single python dictionary called `SETTINGS` which has as it's key/value pairs the settings e.g.
+
+    SETTINGS = {
+        "SOURCE_FOLDER": "{{BASE_FOLDER}}/src",
+        "STATIC_FOLDER": "{{BASE_FOLDER}}/theme/static",
+        "TEMPLATES_FOLDER": "{{BASE_FOLDER}}/theme/temmplates",
+        "CSS_FOLDER": "{{BASE_FOLDER}}/theme/static/css",
+        "JS_FOLDER": "{{BASE_FOLDER}}/theme/static/js"
+     }
 
 Below is a list of the settings you can change for your site. Each setting string value can use Jinja style variable replacements to use any setting variables that were defined before it. 
 
