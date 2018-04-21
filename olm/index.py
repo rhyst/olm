@@ -31,7 +31,7 @@ class Index:
 
     def paginated_path(self, page_number, basepath):
         if page_number == 1:
-            return os.path.join(basepath, 'index.html'), '/'
+            return os.path.join(basepath, 'index.html'), self.context['SITEURL']
         return os.path.join(self.context.OUTPUT_FOLDER,'pg', str(page_number) , 'index.html'), os.path.join('pg', str(page_number))
 
     def write_file(self):
@@ -62,7 +62,7 @@ class Index:
             next_page = None
             if i > 0: 
                 previous_filepath, previous_page = self.paginated_path(page_number - 1, dirname)
-            if i < len(self.pages):
+            if i < len(self.pages) - 1:
                 next_filepath, next_page = self.paginated_path(page_number + 1, dirname)
             writer = Writer(
                 self.context, 
