@@ -18,6 +18,7 @@ class Source:
             
             # Parse the file for content and metadata
             with codecs.open(filepath, 'r', encoding='utf8') as md_file:
+                #reader = Reader(context, md_file.read())
                 reader = Reader(md_file.read())
                 metadata, content = reader.parse()
 
@@ -33,8 +34,8 @@ class Source:
             raise Exception('Article object not supplied with either filepath or content and metadata.') 
         
         #TODO: this doesnt seem to work
-        #signal_sender = Signal(signals.BEFORE_MD_CONVERT)
-        #signal_sender.send(context=context, content=raw_content)
+        signal_sender = Signal(signals.BEFORE_MD_CONVERT)
+        signal_sender.send(context=context, content=content)
         self.content = content
         self.metadata = metadata
         self.status = None
@@ -53,7 +54,7 @@ class Source:
             return
         if self.template is None:
             return
-        self.content = context.MD(self.content) # TODO: work out why this is here
+        self.content = context.MD(self.content)
         writer = Writer(
             self.context, 
             self.output_filepath, 
