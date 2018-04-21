@@ -9,11 +9,12 @@
     - [x] Plugins should be added to path so they can use relative import
     - [ ] More plugin callbacks
     - [ ] Specify different plug path in settings 
+    - [ ] Can't import from plugins?
 * [ ] Content
     - [x] Pages
     - [x] Index
     - [x] Implement authors
-    - [ ] Index only content
+    - [x] Index only content
     - [x] Subsites
         * [x] Subsites compiled into own directory
         * [x] Subsite has own settings
@@ -35,11 +36,11 @@
         * [ ] Statics processing options
     - [ ] Use Jinja for slugs?
 * [ ] Caching
-    - [X] Customise article and page decaching triggers
-    - [ ] Make sure default values work
+    - [x] Customise article and page decaching triggers
+    - [x] Make sure default values work
     - [ ] Check 'cached' files exist in output location (make configurable)
     - [ ] Ability to subscribe to specific metadata from specific file types
 * [ ] Usability
-    - [ ] Quickstart command to geenerate a basic example site
+    - [x] Quickstart command to generate a basic example site
  
 
