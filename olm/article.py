@@ -22,7 +22,7 @@ class Article(Source):
 
         self.template   = 'article.html'
         self.date       = datetime.datetime.strptime(self.metadata['date'].strip(), '%Y-%m-%d') if 'date' in self.metadata else datetime.datetime.now()
-        self.type       = self.metadata['type'].strip().lower() if 'type' in self.metadata else None
+        self.type       = self.metadata['type'].strip().lower() if 'type' in self.metadata else 'article'
         self.title      = self.metadata['title'] if 'title' in self.metadata else basename
         self.summary    = self.metadata['summary'] if 'summary' in self.metadata else None
         self.location   = self.metadata['location'].strip().lower() if 'location' in self.metadata else None
@@ -50,12 +50,14 @@ class Article(Source):
                 context['authors'][author] = [self]
 
         # Output Filepath
-        if self.date and self.location:
-            if 'ARTICLE_SLUG' in context:
-                slug_dict = merge_dictionaries(vars(self), {'date': self.date.strftime('%Y-%m-%d'), 'location': self.location.lower()})
-                output_filename = context.ARTICLE_SLUG.format(**slug_dict)
-            else:
-                output_filename = '{}-{}.html'.format(self.location.lower(), self.date.strftime('%Y-%m-%d'))
+        if 'ARTICLE_SLUG' in context and self.date and self.location:
+            slug_dict = merge_dictionaries(vars(self), {'date': self.date.strftime('%Y-%m-%d'), 'location': self.location.lower()})
+            output_filename = context.ARTICLE_SLUG.format(**slug_dict)
+        elif 'ARTICLE_SLUG' in context:
+            slug_dict = merge_dictionaries(vars(self), {'date': self.date.strftime('%Y-%m-%d')})
+            output_filename = context.ARTICLE_SLUG.format(**slug_dict)
+        elif self.date and self.location:
+            output_filename = '{}-{}.html'.format(self.location.lower(), self.date.strftime('%Y-%m-%d'))
         else:
             output_filename = '{}.html'.format(self.basename)   
         self.output_filepath = os.path.join(context.OUTPUT_FOLDER, 'articles', output_filename)
@@ -75,8 +77,12 @@ class Article(Source):
         self.context = context if context is not None else self.context
         changes                = self.context['cache_change_types']
         changed_meta           = self.context['cache_changed_meta']
-        refresh_triggers       = self.context['ARTICLE_WRITE_TRIGGERS']
-        refresh_meta_triggers  = self.context['ARTICLE_META_WRITE_TRIGGERS']
+        refresh_triggers       = []
+        refresh_meta_triggers  = []
+        if self.cache_type in self.context['WRITE_TRIGGERS']:
+            refresh_triggers = self.context['WRITE_TRIGGERS'][self.cache_type]
+        if self.cache_type in self.context['META_WRITE_TRIGGERS']:
+            refresh_meta_triggers = self.context['META_WRITE_TRIGGERS'][self.cache_type]
         if any(i in changes for i in refresh_triggers):
             self.same_as_cache = False
         if any(any(m in merge_dictionaries(*c) for m in refresh_meta_triggers) for c in changed_meta):

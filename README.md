@@ -89,13 +89,9 @@ Below is a list of the settings you can change for your site. Each setting strin
 | `OUTPUT_CSS_FOLDER`    | `{{OUTPUT_FOLDER}}\theme\css`      | The output folder for compiled css.      |
 | `OUTPUT_JS_FOLDER`     | `{{OUTPUT_FOLDER}}\theme\js`       | The output folder for compiled js.       |
 | `SUBSITES`             | `{}`                               | See subsite section.                     |
-| `ARTICLE_SLUG`         | `'{location}-{date}.html'`         | The format of article filenames. The curly brace vars can be any Article attribute. |
-| `ARTICLE_WRITE_TRIGGERS`      | []                                 | List of cache types that trigger articles to rebuild |
-| `ARTICLE_META_WRITE_TRIGGERS` | []                                 | List of metadata keys that trigger articles to rebuild when changed |
-| `PAGE_WRITE_TRIGGERS`         | []                                 | List of cache types that trigger pages to rebuild |
-| `PAGE_META_WRITE_TRIGGERS`    | []                                 | List of metadata keys that trigger pages to rebuild when changed |
-| `INDEX_WRITE_TRIGGERS`        | []                                 | List of cache types that trigger the index to rebuild |
-| `INDEX_META_WRITE_TRIGGERS`   | []                                 | List of metadata keys that trigger the index to rebuild when changed |
+| `ARTICLE_SLUG`         | `'{location}-{date}.html'`         | The format of article filenames. The curly brace vars can be any Article attribute.|
+| `WRITE_TRIGGERS`      | `{'ARTICLE':[], 'PAGE': [], 'INDEX' :["ARTICLE.NEW_FILE"] }` | Dictionary of cache types with lists of change types that trigger items of that cache type to rebuild when changed |
+| `META_WRITE_TRIGGERS` | `{'ARTICLE':[], 'PAGE': [], 'INDEX' :[]}` | Dictionary of cache types with lists of metadata keys that trigger items of that cache type to rebuild when changed |
 
 ## Themes
 

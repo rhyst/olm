@@ -37,8 +37,12 @@ class Page(Source):
         self.context = context if context is not None else self.context
         changes                = self.context['cache_change_types']
         changed_meta           = self.context['cache_changed_meta']
-        refresh_triggers       = self.context['PAGE_WRITE_TRIGGERS']
-        refresh_meta_triggers  = self.context['PAGE_META_WRITE_TRIGGERS']
+        refresh_triggers       = []
+        refresh_meta_triggers  = []
+        if 'PAGE' in self.context['WRITE_TRIGGERS']:
+            refresh_triggers = self.context['WRITE_TRIGGERS']['PAGE']
+        if 'PAGE' in self.context['META_WRITE_TRIGGERS']:
+            refresh_meta_triggers = self.context['META_WRITE_TRIGGERS']['PAGE']
         if any(i in changes for i in refresh_triggers):
             self.same_as_cache = False
         if any(any(m in merge_dictionaries(*c) for m in refresh_meta_triggers) for c in changed_meta):
