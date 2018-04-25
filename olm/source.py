@@ -51,9 +51,9 @@ class Source:
     def write_file(self, context=None, **kwargs):
         self.context = context if context is not None else self.context
         if self.context.caching_enabled and self.same_as_cache:
-            return
+            return False
         if self.template is None:
-            return
+            return False
         self.content = context.MD(self.content)
         writer = Writer(
             self.context, 
@@ -61,3 +61,4 @@ class Source:
             self.template,
             **kwargs)
         writer.write_file()
+        return True

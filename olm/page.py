@@ -51,5 +51,4 @@ class Page(Source):
     def write_file(self, context=None):
         self.context = context if context is not None else self.context
         self.calc_cache_status()
-        super().write_file(context, page=self)
-        return (not self.same_as_cache) or context.caching_enabled
+        return super().write_file(context, page=self)
