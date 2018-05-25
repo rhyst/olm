@@ -25,14 +25,25 @@ def quickstart(base_path):
     "TEMPLATES_FOLDER": "{{BASE_FOLDER}}/theme/templates",
     "CSS_FOLDER": "{{BASE_FOLDER}}/theme/static/css",
     "JS_FOLDER": "{{BASE_FOLDER}}/theme/static/js",
-    "ARTICLE_SLUG": "{date}-{title}.html"
+    "PLUGINS_FOLDER": "{{BASE_FOLDER}}/plugins",
+    "ARTICLE_SLUG": "{date}-{title}.html",
+    "PLUGINS": ['pygments_plugin']
 }''')
     with codecs.open(os.path.join(articles_path, 'first_article.md'), 'w+', 'utf-8') as f:
         f.write(
 '''Title: My First Article
 Date: 2018-01-01
 
-This is my first article''')
+This is my first article
+
+Here's some code:
+
+```python
+import sys
+
+print(sys.path)
+```
+''')
     with codecs.open(os.path.join(pages_path, 'about.md'), 'w+', 'utf-8') as f:
         f.write(
 '''Title: About
@@ -113,4 +124,29 @@ body{
 h1,h2,h3{
     line-height:1.2
 }
+''')
+    os.makedirs(os.path.join(plugins_path, 'pygments_plugin'))
+    with codecs.open(os.path.join(plugins_path, 'pygments_plugin', 'pygments_plugin.py'), 'w+', 'utf-8') as f:
+        f.write('''
+import re
+from olm.signals import signals
+
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters import HtmlFormatter
+
+def replace(match):
+    language = match.group(2)
+    lexer = get_lexer_by_name(language, stripall=True)
+    formatter = HtmlFormatter(linenos=True, noclasses=True)
+    return highlight(match.group(3), lexer, formatter)
+
+def add_pygments(self, context, source):
+    pattern = re.compile(r'(```)(.*)\\n([\w\W]*)(```)', re.MULTILINE)
+    source.content = pattern.sub(replace, source.content)
+
+def register():
+    return [
+        (signals.BEFORE_MD_CONVERT, add_pygments)
+    ]
 ''')

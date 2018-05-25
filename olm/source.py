@@ -34,8 +34,6 @@ class Source:
             raise Exception('Article object not supplied with either filepath or content and metadata.') 
         
         #TODO: this doesnt seem to work
-        signal_sender = Signal(signals.BEFORE_MD_CONVERT)
-        signal_sender.send(context=context, content=content)
         self.content = content
         self.metadata = metadata
         self.status = None
@@ -43,6 +41,9 @@ class Source:
         self.output_filepath = None
         self.same_as_cache = False
         self.cache_type = 'SOURCE'
+
+        signal_sender = Signal(signals.AFTER_SOURCE_INITIALISED)
+        signal_sender.send(context=context, source=self)
     
     def calc_cache_status(self, context=None):
         self.context = context if context is not None else self.context
@@ -54,7 +55,11 @@ class Source:
             return False
         if self.template is None:
             return False
-        self.content = context.MD(self.content)
+        signal_sender = Signal(signals.BEFORE_MD_CONVERT)
+        signal_sender.send(context=self.context, source=self)
+        self.content = self.context.MD(self.content)
+        signal_sender = Signal(signals.BEFORE_SOURCE_WRITE)
+        signal_sender.send(context=self.context, source=self)
         writer = Writer(
             self.context, 
             self.output_filepath, 
