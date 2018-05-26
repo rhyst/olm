@@ -2,6 +2,7 @@ import sys
 import os
 import time
 import argparse
+import locale
 
 parser = argparse.ArgumentParser(description='Olm static site generator',)
 parser.add_argument('src', action="store", help='Path to site folder')
@@ -55,6 +56,10 @@ def main():
         CONTEXT.caching_enabled = False
     if args.disable_caching_and_rewrite:
         CONTEXT.rewrite_cache_files_when_disabled = True
+
+    if 'LOCALE' in CONTEXT:
+        logger.debug("Setting locale to %s", CONTEXT.LOCALE)
+        locale.setlocale(locale.LC_ALL,CONTEXT.LOCALE)
 
     plugins = Plugins(CONTEXT)
 
